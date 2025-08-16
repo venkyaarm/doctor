@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { doc, getDoc } from "firebase/firestore";
-import { auth, db } from "../src/firebaseconfig";
+import { auth, db } from "../firebaseconfig";
 import { onAuthStateChanged, signOut } from "firebase/auth";
 import { QRCodeCanvas } from "qrcode.react";
 import jsPDF from "jspdf";
