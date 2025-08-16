@@ -1,0 +1,83 @@
+/* Reset default body and html spacing */
+body, html {
+  margin: 0;
+  padding: 0;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  background: #f5f7fa; /* light background for dashboard */
+}
+
+/* Main dashboard container */
+.dashboard-container {
+  display: flex;
+  min-height: 100vh;
+}
+
+/* Sidebar styles (if using MUI Drawer or custom) */
+.sidebar {
+  width: 250px;
+  background: #1e1e2f;
+  color: white;
+  min-height: 100vh;
+}
+
+/* Main content area */
+.dashboard-main {
+  flex: 1;
+  padding: 2rem;
+  padding-top: 2rem; /* no extra top space */
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* Welcome section */
+.welcome-section {
+  background: linear-gradient(135deg, #4facfe, #00f2fe);
+  color: white;
+  padding: 2rem;
+  border-radius: 1rem;
+  margin-bottom: 2rem;
+  margin-top: 0; /* removed extra top space */
+  text-align: center;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+  width: 100%;
+  max-width: 900px;
+}
+
+/* Info boxes grid */
+.info-boxes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 2rem;
+  justify-items: center;
+  width: 100%;
+  max-width: 1200px;
+}
+
+/* Single info box */
+.info-box {
+  max-width: 300px;
+  background: white;
+  padding: 1.5rem;
+  border-radius: 1rem;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.info-box:hover {
+  transform: translateY(-5px);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* Optional: headings inside info boxes */
+.info-box h3 {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
+/* Optional: paragraph inside info boxes */
+.info-box p {
+  margin: 0;
+  color: #555;
+}

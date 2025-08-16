@@ -1,0 +1,73 @@
+/* Full screen center alignment */
+.emergency-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  background: radial-gradient(circle at center, #ff4d4d, #b30000);
+  padding: 20px;
+}
+
+/* Card style */
+.emergency-card {
+  background: white;
+  border-radius: 15px;
+  padding: 25px;
+  text-align: center;
+  max-width: 400px;
+  width: 100%;
+  box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+}
+
+/* Icon */
+.emergency-icon {
+  font-size: 60px;
+  margin-bottom: 10px;
+  animation: pulse 1.5s infinite;
+}
+
+/* Title */
+.emergency-card h2 {
+  color: #b30000;
+  font-size: 28px;
+  margin-bottom: 10px;
+}
+
+/* Buttons */
+.emergency-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin: 15px 0;
+}
+
+.btn {
+  display: block;
+  padding: 12px;
+  border-radius: 8px;
+  color: white;
+  font-weight: bold;
+  text-decoration: none;
+  transition: transform 0.2s ease-in-out;
+}
+
+.btn:hover {
+  transform: scale(1.05);
+}
+
+.call-btn { background: #d90429; }
+.sms-btn { background: #ff7f50; }
+.whatsapp-btn { background: #25d366; }
+
+/* Note */
+.note {
+  font-size: 14px;
+  color: #555;
+  margin-top: 10px;
+}
+
+/* Animation for icon */
+@keyframes pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.15); }
+}

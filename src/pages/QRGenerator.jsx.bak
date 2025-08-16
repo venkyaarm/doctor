@@ -1,0 +1,345 @@
+import React, { useState, useEffect, useRef } from "react";
+import { initializeApp } from "firebase/app";
+import { getAuth, signInWithCustomToken, signInAnonymously, onAuthStateChanged } from "firebase/auth";
+import { getFirestore, doc, getDoc, setDoc } from "firebase/firestore";
+import { XCircle } from 'lucide-react';
+
+export default function App() {
+  const [formData, setFormData] = useState({
+    name: "",
+    dob: "",
+    gender: "",
+    bloodGroup: "",
+    disease: "",
+    allergies: "",
+    address: "",
+    parentName: "",
+    parentContact: "",
+    emergencyContact: "",
+    doctorName: "",
+    doctorContact: ""
+  });
+  const [loading, setLoading] = useState(true);
+  const [isAuthReady, setIsAuthReady] = useState(false);
+  const [db, setDb] = useState(null);
+  const [auth, setAuth] = useState(null);
+  const [userId, setUserId] = useState(null);
+  const [message, setMessage] = useState('');
+  const [showMessage, setShowMessage] = useState(false);
+  
+  // Use a ref to target the QR code container element
+  const qrRef = useRef(null);
+
+  // Helper function to display a custom message instead of alert()
+  const displayMessage = (text) => {
+    setMessage(text);
+    setShowMessage(true);
+    setTimeout(() => {
+      setShowMessage(false);
+      setMessage('');
+    }, 3000);
+  };
+
+  // Initialize Firebase and set up auth state listener
+  useEffect(() => {
+    const firebaseConfig = typeof __firebase_config !== 'undefined' ? JSON.parse(__firebase_config) : {};
+    const app = initializeApp(firebaseConfig);
+    const firestoreDb = getFirestore(app);
+    const firebaseAuth = getAuth(app);
+    
+    setDb(firestoreDb);
+    setAuth(firebaseAuth);
+
+    const unsubscribe = onAuthStateChanged(firebaseAuth, async (user) => {
+      if (user) {
+        setUserId(user.uid);
+      } else {
+        setUserId(null);
+      }
+      setIsAuthReady(true);
+    });
+
+    return () => unsubscribe();
+  }, []);
+
+  // Fetch saved data from Firestore if authenticated
+  useEffect(() => {
+    const fetchData = async () => {
+      if (db && auth && isAuthReady && userId) {
+        try {
+          const docRef = doc(db, `artifacts/${typeof __app_id !== 'undefined' ? __app_id : 'default-app-id'}/users/${userId}/data/health-qr`);
+          const docSnap = await getDoc(docRef);
+          if (docSnap.exists()) {
+            setFormData(docSnap.data());
+          }
+        } catch (err) {
+          console.error("Error fetching data:", err);
+        }
+        setLoading(false);
+      } else if (isAuthReady && !userId) {
+        // Handle unauthenticated case
+        setLoading(false);
+      }
+    };
+
+    if (isAuthReady) {
+      const signIn = async () => {
+        try {
+          const customToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+          if (customToken) {
+            await signInWithCustomToken(auth, customToken);
+          } else {
+            await signInAnonymously(auth);
+          }
+          fetchData();
+        } catch (error) {
+          console.error("Firebase Auth Error:", error);
+          setLoading(false);
+        }
+      };
+      signIn();
+    }
+  }, [isAuthReady, db, auth, userId]);
+
+
+  // Generate QR code whenever formData changes
+  useEffect(() => {
+    if (qrRef.current) {
+      // Clear previous QR code
+      qrRef.current.innerHTML = "";
+      
+      const qrValue = JSON.stringify(formData);
+      
+      // Load the QR code library dynamically
+      const script = document.createElement("script");
+      script.src = "https://cdn.rawgit.com/davidshimjs/qrcodejs/gh-pages/qrcode.min.js";
+      script.async = true;
+      script.onload = () => {
+        // eslint-disable-next-line no-undef
+        new QRCode(qrRef.current, {
+          text: qrValue,
+          width: 200,
+          height: 200,
+          colorDark: "#000000",
+          colorLight: "#ffffff",
+          correctLevel: QRCode.CorrectLevel.H
+        });
+      };
+      document.body.appendChild(script);
+    }
+  }, [formData]);
+
+  const handleChange = (e) => {
+    const { name, value } = e.target;
+    setFormData({ ...formData, [name]: value });
+  };
+
+  const saveDetails = async () => {
+    if (!userId) {
+      displayMessage("Please wait for authentication to complete.");
+      return;
+    }
+
+    try {
+      const docRef = doc(db, `artifacts/${typeof __app_id !== 'undefined' ? __app_id : 'default-app-id'}/users/${userId}/data/health-qr`);
+      await setDoc(docRef, formData);
+      displayMessage("Details saved permanently!");
+    } catch (err) {
+      console.error("Error saving data:", err);
+      displayMessage("Failed to save data.");
+    }
+  };
+
+  if (loading || !isAuthReady) {
+    return (
+      <div className="flex flex-col items-center justify-center min-h-screen bg-gray-100 dark:bg-gray-900">
+        <div className="w-16 h-16 border-4 border-t-4 border-blue-500 rounded-full animate-spin"></div>
+        <p className="mt-4 text-lg text-gray-700 dark:text-gray-300">Loading your details...</p>
+      </div>
+    );
+  }
+
+  return (
+    <div className="min-h-screen flex items-center justify-center p-4 bg-gradient-to-br from-blue-100 via-blue-200 to-blue-300">
+      
+      {/* Custom Message Toast */}
+      {showMessage && (
+        <div className="fixed top-5 right-5 z-50 flex items-center p-4 bg-white rounded-lg shadow-lg animate-fade-in-up">
+          <p className="text-sm font-medium text-gray-800">{message}</p>
+          <button onClick={() => setShowMessage(false)} className="ml-2 text-gray-500 hover:text-gray-700 focus:outline-none">
+            <XCircle size={20} />
+          </button>
+        </div>
+      )}
+
+      {/* Main Glassmorphism Card */}
+      <div className="w-full max-w-5xl bg-white bg-opacity-50 backdrop-blur-md rounded-3xl shadow-2xl p-6 md:p-10 transform transition-all duration-500 hover:scale-[1.01]">
+        <h2 className="text-center text-3xl md:text-4xl font-extrabold text-blue-900 mb-6 font-poppins drop-shadow-md">
+          Generate Your Health QR Code
+        </h2>
+
+        {/* Form Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-x-12 gap-y-6">
+          {/* First Column */}
+          <div className="space-y-4">
+            <div className="relative">
+              <label className="block text-sm font-semibold text-blue-800 mb-1">Full Name</label>
+              <input 
+                name="name" 
+                value={formData.name} 
+                onChange={handleChange} 
+                className="w-full p-3 rounded-xl border border-blue-200 focus:ring-2 focus:ring-blue-400 focus:border-transparent outline-none transition-colors"
+                placeholder="John Doe"
+              />
+            </div>
+            
+            <div className="relative">
+              <label className="block text-sm font-semibold text-blue-800 mb-1">Date of Birth</label>
+              <input 
+                type="date" 
+                name="dob" 
+                value={formData.dob} 
+                onChange={handleChange} 
+                className="w-full p-3 rounded-xl border border-blue-200 focus:ring-2 focus:ring-blue-400 focus:border-transparent outline-none transition-colors"
+              />
+            </div>
+
+            <div className="relative">
+              <label className="block text-sm font-semibold text-blue-800 mb-1">Gender</label>
+              <select 
+                name="gender" 
+                value={formData.gender} 
+                onChange={handleChange} 
+                className="w-full p-3 rounded-xl border border-blue-200 focus:ring-2 focus:ring-blue-400 focus:border-transparent outline-none transition-colors appearance-none pr-8 bg-white"
+              >
+                <option value="">Select</option>
+                <option>Male</option>
+                <option>Female</option>
+                <option>Other</option>
+              </select>
+            </div>
+
+            <div className="relative">
+              <label className="block text-sm font-semibold text-blue-800 mb-1">Blood Group</label>
+              <input 
+                name="bloodGroup" 
+                value={formData.bloodGroup} 
+                onChange={handleChange} 
+                className="w-full p-3 rounded-xl border border-blue-200 focus:ring-2 focus:ring-blue-400 focus:border-transparent outline-none transition-colors"
+                placeholder="A+"
+              />
+            </div>
+
+            <div className="relative">
+              <label className="block text-sm font-semibold text-blue-800 mb-1">Known Diseases</label>
+              <input 
+                name="disease" 
+                value={formData.disease} 
+                onChange={handleChange} 
+                className="w-full p-3 rounded-xl border border-blue-200 focus:ring-2 focus:ring-blue-400 focus:border-transparent outline-none transition-colors"
+                placeholder="Diabetes, Asthma"
+              />
+            </div>
+
+            <div className="relative">
+              <label className="block text-sm font-semibold text-blue-800 mb-1">Allergies</label>
+              <input 
+                name="allergies" 
+                value={formData.allergies} 
+                onChange={handleChange} 
+                className="w-full p-3 rounded-xl border border-blue-200 focus:ring-2 focus:ring-blue-400 focus:border-transparent outline-none transition-colors"
+                placeholder="Penicillin, Peanuts"
+              />
+            </div>
+
+            <div className="relative">
+              <label className="block text-sm font-semibold text-blue-800 mb-1">Address</label>
+              <textarea 
+                name="address" 
+                value={formData.address} 
+                onChange={handleChange} 
+                className="w-full p-3 rounded-xl border border-blue-200 focus:ring-2 focus:ring-blue-400 focus:border-transparent outline-none transition-colors min-h-[80px]"
+                placeholder="123 Main St, City, State, ZIP"
+              ></textarea>
+            </div>
+          </div>
+
+          {/* Second Column */}
+          <div className="space-y-4">
+            <div className="relative">
+              <label className="block text-sm font-semibold text-blue-800 mb-1">Parent Name</label>
+              <input 
+                name="parentName" 
+                value={formData.parentName} 
+                onChange={handleChange} 
+                className="w-full p-3 rounded-xl border border-blue-200 focus:ring-2 focus:ring-blue-400 focus:border-transparent outline-none transition-colors"
+                placeholder="Jane Doe"
+              />
+            </div>
+
+            <div className="relative">
+              <label className="block text-sm font-semibold text-blue-800 mb-1">Parent Contact</label>
+              <input 
+                name="parentContact" 
+                value={formData.parentContact} 
+                onChange={handleChange} 
+                className="w-full p-3 rounded-xl border border-blue-200 focus:ring-2 focus:ring-blue-400 focus:border-transparent outline-none transition-colors"
+                placeholder="+1 555-123-4567"
+              />
+            </div>
+
+            <div className="relative">
+              <label className="block text-sm font-semibold text-blue-800 mb-1">Emergency Contact</label>
+              <input 
+                name="emergencyContact" 
+                value={formData.emergencyContact} 
+                onChange={handleChange} 
+                className="w-full p-3 rounded-xl border border-blue-200 focus:ring-2 focus:ring-blue-400 focus:border-transparent outline-none transition-colors"
+                placeholder="+1 555-987-6543"
+              />
+            </div>
+
+            <div className="relative">
+              <label className="block text-sm font-semibold text-blue-800 mb-1">Family Doctor Name</label>
+              <input 
+                name="doctorName" 
+                value={formData.doctorName} 
+                onChange={handleChange} 
+                className="w-full p-3 rounded-xl border border-blue-200 focus:ring-2 focus:ring-blue-400 focus:border-transparent outline-none transition-colors"
+                placeholder="Dr. Smith"
+              />
+            </div>
+
+            <div className="relative">
+              <label className="block text-sm font-semibold text-blue-800 mb-1">Doctor Contact</label>
+              <input 
+                name="doctorContact" 
+                value={formData.doctorContact} 
+                onChange={handleChange} 
+                className="w-full p-3 rounded-xl border border-blue-200 focus:ring-2 focus:ring-blue-400 focus:border-transparent outline-none transition-colors"
+                placeholder="+1 555-111-2222"
+              />
+            </div>
+
+            {/* QR Code Container */}
+            <div className="flex justify-center items-center mt-6 p-4 bg-white bg-opacity-70 rounded-2xl shadow-inner transition-all duration-300 transform scale-105 hover:scale-110">
+              <div ref={qrRef} className="rounded-lg shadow-lg"></div>
+            </div>
+          </div>
+        </div>
+
+        {/* Save and Generate Button */}
+        <div className="flex justify-center mt-8">
+          <button 
+            type="button" 
+            onClick={saveDetails} 
+            className="flex items-center space-x-2 px-8 py-4 bg-gradient-to-r from-blue-600 to-blue-800 text-white font-bold rounded-full shadow-lg hover:shadow-xl transition-all duration-300 transform hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-blue-300"
+          >
+            <span className="text-xl">Save & Generate</span>
+          </button>
+        </div>
+        
+      </div>
+    </div>
+  );
+}

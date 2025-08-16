@@ -1,0 +1,175 @@
+import React, { useState } from "react";
+import "./SkinCare.css";
+import jsPDF from "jspdf";
+import { FaMicrophone, FaSearch, FaStopCircle, FaMoon, FaSun } from "react-icons/fa";
+
+const FaceRemedies = () => {
+  const [query, setQuery] = useState("");
+  const [remedyData, setRemedyData] = useState("");
+  const [listening, setListening] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [utterance, setUtterance] = useState(null);
+  const [darkMode, setDarkMode] = useState(false);
+
+  // ✅ Hardcoded API Key
+  const GEMINI_API_KEY = "AIzaSyDsDZJmml18dqhEwVDPSoZdhesZStaBDJ0";
+
+  const problems = [
+    "Pimples", "Acne", "Dark Circles", "Black Skin", "Dry Skin",
+    "Oily Skin", "Dull Skin", "Wrinkles", "Tanning",
+  ];
+
+  const toggleDarkMode = () => setDarkMode(!darkMode);
+
+  const fetchRemedy = async (problem) => {
+    if (!problem.trim()) return;
+    setLoading(true);
+    setRemedyData("");
+    stopVoice();
+
+    const prompt = `Give 4-6 simple natural home remedies for ${problem} in short bullet points using common kitchen ingredients. Use simple English. Do not use *, ** or markdown.`;
+
+    try {
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ contents: [{ parts: [{ text: prompt }] }] }),
+        }
+      );
+
+      const data = await res.json();
+      const result = data?.candidates?.[0]?.content?.parts?.[0]?.text;
+
+      const formatted = result
+        ?.split(/\d+\.\s*/)
+        .filter(Boolean)
+        .map((line) => `➤ ${line.trim()}`)
+        .join("\n\n");
+
+      const clean = formatted || "No remedy found.";
+      setRemedyData(clean);
+      speakText(clean);
+    } catch (err) {
+      setRemedyData("❌ Sorry, something went wrong.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const handleSearch = () => fetchRemedy(query);
+
+  const handleVoiceInput = () => {
+    const recognition = new window.webkitSpeechRecognition();
+    recognition.lang = "en-US";
+    recognition.interimResults = false;
+    recognition.onstart = () => {
+      setListening(true);
+      setQuery("Listening...");
+    };
+    recognition.onend = () => setListening(false);
+    recognition.onresult = (e) => {
+      const transcript = e.results[0][0].transcript;
+      setQuery(transcript);
+      fetchRemedy(transcript);
+    };
+    recognition.start();
+  };
+
+  const speakText = (text) => {
+    stopVoice();
+    const newUtterance = new SpeechSynthesisUtterance(text);
+    newUtterance.rate = 1;
+    window.speechSynthesis.speak(newUtterance);
+    setUtterance(newUtterance);
+  };
+
+  const stopVoice = () => {
+    window.speechSynthesis.cancel();
+    setUtterance(null);
+  };
+
+  const exportTxt = () => {
+    const blob = new Blob([remedyData], { type: "text/plain" });
+    const link = document.createElement("a");
+    link.href = URL.createObjectURL(blob);
+    link.download = "remedy.txt";
+    link.click();
+  };
+
+  const exportPDF = () => {
+    const pdf = new jsPDF();
+    const lines = remedyData.split("\n");
+    let y = 20;
+    pdf.setFont("helvetica");
+    pdf.setFontSize(12);
+    lines.forEach((line) => {
+      pdf.text(line, 10, y);
+      y += 10;
+      if (y > 270) {
+        pdf.addPage();
+        y = 20;
+      }
+    });
+    pdf.save("remedy.pdf");
+  };
+
+  return (
+    <div className={`main-wrapper ${darkMode ? "dark" : ""}`}>
+      <div className="topbar">
+        <h1 className="title">🌿 Face Remedies</h1>
+        <button className="dark-toggle" onClick={toggleDarkMode}>
+          {darkMode ? <FaSun /> : <FaMoon />}
+        </button>
+      </div>
+
+      <div className="search-box">
+        <input
+          type="text"
+          value={query}
+          placeholder="Ask your skin problem..."
+          onChange={(e) => setQuery(e.target.value)}
+        />
+        <button className="mic" onClick={handleVoiceInput}>
+          <FaMicrophone />
+        </button>
+        <button className="search-btn" onClick={handleSearch}>
+          <FaSearch /> Search
+        </button>
+        <button className="search-btn stop" onClick={stopVoice}>
+          <FaStopCircle /> Stop Voice
+        </button>
+      </div>
+
+      <div className="problem-buttons">
+        {problems.map((item) => (
+          <button key={item} onClick={() => fetchRemedy(item)}>
+            {item}
+          </button>
+        ))}
+      </div>
+
+      <div className="remedy-box">
+        <h2>🧴 Home Remedy</h2>
+        {loading ? (
+          <div className="spinner-container">
+            <div className="loader"></div>
+            <p>Loading remedies...</p>
+          </div>
+        ) : (
+          <p className="remedy-content">{remedyData || "No remedy found."}</p>
+        )}
+
+        {!loading && remedyData && (
+          <div className="bottom-controls">
+            <button onClick={exportTxt}>📄 Export .txt</button>
+            <button onClick={exportPDF}>📄 Export PDF</button>
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default FaceRemedies;

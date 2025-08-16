@@ -1,0 +1,70 @@
+// src/pages/Login.jsx
+import { useState } from "react";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../firebaseConfig";
+import { Link, useNavigate } from "react-router-dom";
+import "./Login.css"; // ✅ Keep CSS import
+
+export default function Login() {
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const navigate = useNavigate();
+
+  const handleLogin = async (e) => {
+    e.preventDefault();
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      navigate("/dashboard");
+    } catch (error) {
+      alert(error.message);
+    }
+  };
+
+  return (
+    <div className="login-container-new">
+      <div className="login-card-new">
+        <div className="login-header-new">
+          <div className="hospital-icon-new">🏥</div>
+          <h2 className="login-title-new">Hospital App Login</h2>
+          <p className="login-subtitle-new">Access your account securely</p>
+        </div>
+        <form onSubmit={handleLogin} className="login-form-new">
+          <div className="form-group-new">
+            <label className="input-label-new">Email Address</label>
+            <input
+              type="email"
+              placeholder="Enter your email"
+              value={email}
+              onChange={(e) => setEmail(e.target.value)}
+              required
+              className="input-field-new"
+            />
+          </div>
+
+          <div className="form-group-new">
+            <label className="input-label-new">Password</label>
+            <input
+              type="password"
+              placeholder="Enter your password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              required
+              className="input-field-new"
+            />
+          </div>
+
+          <button type="submit" className="login-btn-new">
+            Login
+          </button>
+        </form>
+
+        <p className="register-text-new">
+          Don’t have an account?{" "}
+          <Link to="/register" className="register-link-new">
+            Register here
+          </Link>
+        </p>
+      </div>
+    </div>
+  );
+}

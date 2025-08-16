@@ -1,0 +1,24 @@
+import React from "react";
+import "./Emergency.css";
+
+export default function Emergency() {
+  return (
+    <div className="emergency-container">
+      <div className="emergency-card">
+        <div className="emergency-icon">🚨</div>
+        <h2>Emergency Contact</h2>
+        <p>If you are in an emergency, call immediately:</p>
+
+        <div className="emergency-buttons">
+          <a href="tel:108" className="btn call-btn">📞 Call Ambulance (108)</a>
+          <a href="sms:108?body=I%20need%20urgent%20help" className="btn sms-btn">✉️ Send SMS</a>
+          <a href="https://wa.me/91108?text=I%20need%20urgent%20help" target="_blank" rel="noopener noreferrer" className="btn whatsapp-btn">💬 WhatsApp</a>
+        </div>
+
+        <p className="note">
+          Stay calm, provide clear information, and follow instructions from emergency responders.
+        </p>
+      </div>
+    </div>
+  );
+}

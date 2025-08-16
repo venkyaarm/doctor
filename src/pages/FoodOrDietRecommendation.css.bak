@@ -1,0 +1,81 @@
+.food-diet-container {
+  background: linear-gradient(135deg, #d4fc79, #96e6a1);
+  min-height: 100vh;
+  padding: 20px;
+  font-family: Arial, sans-serif;
+}
+
+.form-section {
+  background: white;
+  padding: 20px;
+  max-width: 500px;
+  margin: auto;
+  border-radius: 10px;
+  box-shadow: 0px 6px 20px rgba(0,0,0,0.15);
+}
+
+.form-section h2 {
+  text-align: center;
+  margin-bottom: 20px;
+}
+
+.form-section input,
+.form-section select {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.form-section button {
+  width: 100%;
+  padding: 12px;
+  margin-bottom: 10px;
+  border: none;
+  background: #28a745;
+  color: white;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.form-section button:hover {
+  background: #218838;
+}
+
+.tip-section {
+  background: #fff3cd;
+  padding: 10px;
+  margin: 15px auto;
+  max-width: 500px;
+  border-radius: 8px;
+  text-align: center;
+}
+
+.search-section {
+  max-width: 500px;
+  margin: auto;
+  margin-top: 15px;
+}
+
+.search-section input {
+  width: 100%;
+  padding: 10px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+}
+
+.recommendations-section {
+  margin-top: 20px;
+  max-width: 800px;
+  margin-left: auto;
+  margin-right: auto;
+}
+
+.food-card {
+  background: white;
+  padding: 12px;
+  margin-bottom: 10px;
+  border-radius: 10px;
+  box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+}
