@@ -2,7 +2,7 @@
   display: flex;
   justify-content: center;
   align-items: center;
-  height: 100vh;
+  min-height: 100vh;
   background: linear-gradient(135deg, #c9d6ff, #e2e2e2);
   padding: 20px;
 }
@@ -19,6 +19,7 @@
 
 .report-analysis-box h1 {
   margin-bottom: 15px;
+  font-size: 1.8rem;
 }
 
 textarea {
@@ -28,11 +29,14 @@ textarea {
   border: 1px solid #ccc;
   padding: 10px;
   margin-bottom: 15px;
+  font-size: 1rem;
+  resize: vertical;
 }
 
 .buttons-row {
   display: flex;
   justify-content: center;
+  flex-wrap: wrap; /* so buttons stack on smaller screens */
   gap: 10px;
   margin-bottom: 10px;
 }
@@ -44,6 +48,12 @@ button {
   padding: 10px 15px;
   border-radius: 8px;
   cursor: pointer;
+  font-size: 1rem;
+  transition: background 0.2s ease;
+}
+
+button:hover:not(:disabled) {
+  background: #005f87;
 }
 
 button:disabled {
@@ -58,10 +68,71 @@ button:disabled {
 .analysis-result {
   margin-top: 20px;
   text-align: left;
+  font-size: 1rem;
 }
 
 .export-buttons {
   display: flex;
+  flex-wrap: wrap;
   gap: 10px;
   margin-top: 10px;
+  justify-content: center;
+}
+
+/* ============================= */
+/* 📱 Mobile Styles (max-width 768px) */
+/* ============================= */
+@media (max-width: 768px) {
+  .report-analysis-box {
+    padding: 20px;
+    border-radius: 12px;
+    max-width: 95%;
+  }
+
+  .report-analysis-box h1 {
+    font-size: 1.5rem;
+  }
+
+  textarea {
+    height: 120px;
+    font-size: 0.95rem;
+  }
+
+  button {
+    flex: 1; /* buttons stretch evenly */
+    padding: 12px;
+    font-size: 0.95rem;
+  }
+
+  .buttons-row {
+    flex-direction: column; /* stack vertically */
+  }
+
+  .export-buttons {
+    flex-direction: column;
+  }
+}
+
+/* ============================= */
+/* 💻 Larger Desktop Screens */
+/* ============================= */
+@media (min-width: 1200px) {
+  .report-analysis-box {
+    max-width: 700px;
+    padding: 30px;
+  }
+
+  .report-analysis-box h1 {
+    font-size: 2rem;
+  }
+
+  textarea {
+    height: 150px;
+    font-size: 1.05rem;
+  }
+
+  button {
+    padding: 12px 20px;
+    font-size: 1.05rem;
+  }
 }

@@ -1,3 +1,7 @@
+/* ===========================
+   Sidebar Styles (Desktop + Mobile)
+   =========================== */
+
 /* Active menu item styling */
 .active-link {
   background: rgba(255, 255, 255, 0.25) !important;
@@ -26,9 +30,30 @@
   color: #fff;
 }
 
-/* Mobile responsive */
+/* ===========================
+   Desktop View (Default)
+   =========================== */
+.MuiDrawer-paper {
+  width: 250px !important;  /* Sidebar width for desktop */
+  background: blue !important; /* Dark background */
+  color: white !important;
+  transition: width 0.3s ease;
+}
+
+/* ===========================
+   Mobile Responsive
+   =========================== */
 @media (max-width: 768px) {
   .MuiDrawer-paper {
-    width: 200px !important;
+    width: 200px !important; /* Smaller sidebar for mobile */
+    background: #252542 !important; /* Slightly different shade */
+  }
+
+  .MuiListItemText-primary {
+    font-size: 0.9rem !important; /* Smaller text */
+  }
+
+  .MuiTooltip-tooltip {
+    font-size: 12px;
   }
 }

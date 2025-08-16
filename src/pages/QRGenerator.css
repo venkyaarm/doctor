@@ -63,10 +63,12 @@
   color: white;
   font-size: 1rem;
   cursor: pointer;
+  transition: all 0.3s ease;
 }
 
 .qr-btn:hover {
   opacity: 0.9;
+  transform: translateY(-2px);
 }
 
 .qr-code-container {
@@ -75,9 +77,47 @@
   margin-top: 20px;
 }
 
-/* Mobile responsive */
+/* ✅ Responsive Design */
+
+/* Large Desktop */
+@media (min-width: 1200px) {
+  .qr-card {
+    padding: 40px 60px;
+  }
+  .qr-title {
+    font-size: 2rem;
+  }
+}
+
+/* Tablet */
+@media (max-width: 992px) {
+  .qr-card {
+    max-width: 90%;
+    padding: 20px;
+  }
+  .qr-grid {
+    grid-template-columns: 1fr 1fr;
+    gap: 15px 20px;
+  }
+  .qr-title {
+    font-size: 1.6rem;
+  }
+}
+
+/* Mobile */
 @media (max-width: 768px) {
   .qr-grid {
     grid-template-columns: 1fr;
+  }
+  .qr-card {
+    padding: 15px;
+    max-width: 95%;
+  }
+  .qr-title {
+    font-size: 1.4rem;
+  }
+  .qr-btn {
+    width: 100%;
+    padding: 12px;
   }
 }

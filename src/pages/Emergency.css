@@ -13,7 +13,7 @@
 .emergency-card {
   background: white;
   border-radius: 15px;
-  padding: 30px; /* Slightly increased padding for better spacing */
+  padding: 30px;
   text-align: center;
   max-width: 420px;
   width: 100%;
@@ -23,7 +23,7 @@
 /* Icon */
 .emergency-icon {
   font-size: 70px;
-  margin-bottom: 25px; /* Increased margin to move it down */
+  margin-bottom: 25px;
   animation: pulse 1.5s infinite;
 }
 
@@ -103,4 +103,68 @@
 @keyframes pulse {
   0%, 100% { transform: scale(1); }
   50% { transform: scale(1.15); }
+}
+
+/* ✅ Responsive Design */
+
+/* Tablets & Small Screens */
+@media (max-width: 768px) {
+  .emergency-card {
+    padding: 20px;
+    max-width: 90%;
+  }
+
+  .emergency-icon {
+    font-size: 60px;
+  }
+
+  .emergency-card h2 {
+    font-size: 24px;
+  }
+
+  .btn {
+    padding: 12px;
+    font-size: 15px;
+  }
+
+  .tips-section h3 {
+    font-size: 16px;
+  }
+
+  .tips-section ul {
+    font-size: 13px;
+  }
+}
+
+/* Mobile Phones */
+@media (max-width: 480px) {
+  .emergency-card {
+    padding: 15px;
+    border-radius: 10px;
+  }
+
+  .emergency-icon {
+    font-size: 50px;
+  }
+
+  .emergency-card h2 {
+    font-size: 20px;
+  }
+
+  .btn {
+    padding: 10px;
+    font-size: 14px;
+  }
+
+  .note, .countdown {
+    font-size: 12px;
+  }
+
+  .tips-section h3 {
+    font-size: 15px;
+  }
+
+  .tips-section ul {
+    font-size: 12px;
+  }
 }

@@ -15,6 +15,7 @@
   padding-top: 0; /* avoid double spacing */
 }
 
+/* Desktop & Tablet */
 .info-boxes {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -23,6 +24,7 @@
 }
 
 .info-box {
+  width: 100%;
   max-width: 300px;
   background: white;
   padding: 1.5rem;
@@ -35,4 +37,39 @@
 .info-box:hover {
   transform: translateY(-5px);
   box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+}
+
+/* ✅ Mobile View Adjustments */
+@media (max-width: 768px) {
+  .welcome-section {
+    padding: 1.5rem;
+    font-size: 0.9rem;
+  }
+
+  .dashboard-main {
+    padding: 1rem;
+  }
+
+  .info-boxes {
+    grid-template-columns: 1fr; /* stack boxes vertically */
+    gap: 1rem;
+  }
+
+  .info-box {
+    max-width: 100%; /* use full width on mobile */
+    padding: 1rem;
+  }
+}
+
+/* ✅ Extra small screens (phones under 480px) */
+@media (max-width: 480px) {
+  .welcome-section {
+    padding: 1rem;
+    font-size: 0.85rem;
+  }
+
+  .info-box {
+    font-size: 0.85rem;
+    padding: 0.8rem;
+  }
 }

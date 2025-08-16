@@ -1,6 +1,5 @@
 .main-content {
-  /* Forced CSS to move the content down,
-     adjusting for the header in the screenshot. */
+  /* Ensures content starts below header */
   padding-top: 60px !important;
 }
 
@@ -19,6 +18,7 @@
   font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
 }
 
+/* Form Section */
 .form-section {
   background: white;
   padding: 25px;
@@ -45,7 +45,6 @@
 .form-section select {
   width: 100%;
   padding: 12px;
-  margin-bottom: 0;
   border-radius: 8px;
   border: 1px solid #ddd;
   font-size: 14px;
@@ -75,6 +74,7 @@
   cursor: not-allowed;
 }
 
+/* Tip Section */
 .tip-section {
   background: #fff3cd;
   padding: 15px;
@@ -86,6 +86,7 @@
   box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
 }
 
+/* Water Tracker */
 .water-tracker {
   background: white;
   padding: 15px;
@@ -105,6 +106,7 @@
   display: flex;
   gap: 10px;
   justify-content: center;
+  flex-wrap: wrap;
 }
 
 .water-buttons button {
@@ -116,6 +118,7 @@
   cursor: pointer;
 }
 
+/* Search Section */
 .search-section {
   max-width: 600px;
   margin: 20px auto;
@@ -129,6 +132,7 @@
   font-size: 15px;
 }
 
+/* Tabs */
 .tabs {
   display: flex;
   justify-content: center;
@@ -151,6 +155,7 @@
   color: white;
 }
 
+/* Recommendations */
 .recommendations-section {
   margin-top: 20px;
   max-width: 800px;
@@ -196,16 +201,7 @@
   margin: 20px auto;
 }
 
-@media (max-width: 600px) {
-  .input-grid {
-    grid-template-columns: 1fr;
-  }
-  
-  .tabs {
-    flex-direction: column;
-  }
-}
-/* Add this to your existing CSS */
+/* Export PDF Button */
 .export-pdf-btn {
   display: block;
   width: 150px;
@@ -229,10 +225,49 @@
   cursor: not-allowed;
 }
 
-/* Add this to your existing media query */
+/* ✅ Responsive Design */
+
+/* Tablets & Small Screens */
+@media (max-width: 900px) {
+  .recommendations-section {
+    max-width: 95%;
+    padding: 0 10px;
+  }
+
+  .main-heading {
+    font-size: 2rem;
+  }
+}
+
+/* Mobile */
 @media (max-width: 600px) {
+  .input-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tabs {
+    flex-direction: column;
+  }
+
   .export-pdf-btn {
     width: 100%;
     margin-bottom: 15px;
+  }
+
+  .main-heading {
+    font-size: 1.8rem;
+  }
+
+  .form-section,
+  .tip-section,
+  .water-tracker,
+  .search-section,
+  .nutrition-section {
+    padding: 15px;
+    max-width: 95%;
+  }
+
+  .food-card {
+    padding: 12px;
   }
 }
