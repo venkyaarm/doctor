@@ -46,7 +46,7 @@
 @media (max-width: 768px) {
   .MuiDrawer-paper {
     width: 200px !important; /* Smaller sidebar for mobile */
-    background: #252542 !important; /* Slightly different shade */
+    background: #040492 !important; /* Slightly different shade */
   }
 
   .MuiListItemText-primary {
