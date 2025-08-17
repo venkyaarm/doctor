@@ -148,10 +148,10 @@ export default function HospitalsNearMe() {
 const styles = {
   container: {
     height: "calc(100vh - 64px)", // full height minus header
-    width: "100%",
+    width: "300%",
     display: "flex",
     flexDirection: "column",
-    backgroundColor: "#1e1e1e",
+    backgroundColor: "#ffffffff",
     color: "#fff",
   },
   error: {
@@ -164,17 +164,17 @@ const styles = {
     width: "100%",
   },
   map: {
-    width: "100%",
+    width: "300%",
     height: "100%",
   },
   bottomBar: {
     padding: "10px",
-    background: "#2c2c2c",
+    background: "#fffcfcff",
     textAlign: "center",
-    borderTop: "1px solid #444",
+    borderTop: "1px solid #ffffffff",
   },
   nearMeBtn: {
-    padding: "10px 20px",
+    padding: "10px 150px",
     background: "#ff5252",
     color: "#fff",
     border: "none",

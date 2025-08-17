@@ -55,10 +55,25 @@ export default function Account() {
     pdf.save("my_qr.pdf");
   };
 
+  const printQR = () => {
+    const canvas = qrRef.current.querySelector("canvas");
+    const img = canvas.toDataURL("image/png");
+    const newWin = window.open("");
+    newWin.document.write(`<img src="${img}" />`);
+    newWin.print();
+  };
+
+  const copyDetails = () => {
+    navigator.clipboard.writeText(JSON.stringify(details, null, 2));
+    alert("Details copied to clipboard!");
+  };
+
   const handleLogout = () => {
-    signOut(auth).then(() => {
-      window.location.href = "/login";
-    });
+    if (window.confirm("Are you sure you want to log out?")) {
+      signOut(auth).then(() => {
+        window.location.href = "/login";
+      });
+    }
   };
 
   if (loading) {
@@ -81,32 +96,47 @@ export default function Account() {
 
   return (
     <div className="account-container">
-      <div className="account-card">
-        <h2 className="account-title">My Account</h2>
+      <div className="account-card glass-effect">
+        <h2 className="account-title">👤 My Account</h2>
 
-        <div className="account-buttons">
-          <button className="btn" onClick={() => alert(JSON.stringify(details, null, 2))}>
-            Show My Details
-          </button>
-          <button className="btn" onClick={handleLogout}>
-            Log Out
-          </button>
-          <button className="btn secondary" onClick={() => alert("Settings page coming soon!")}>
-            Settings
-          </button>
-        </div>
+        <div className="account-content">
+          {/* Left column: Details */}
+          <div className="details-section">
+            <h3>Personal Details</h3>
+            <ul>
+              {Object.entries(details).map(([key, value]) => (
+                <li key={key}>
+                  <strong>{key}:</strong> {value.toString()}
+                </li>
+              ))}
+            </ul>
 
-        <div ref={qrRef} className="qr-container">
-          <QRCodeCanvas value={JSON.stringify(details)} size={200} />
-        </div>
+            <div className="account-buttons">
+              <button className="btn primary" onClick={copyDetails}>
+                📋 Copy Details
+              </button>
+              <button className="btn danger" onClick={handleLogout}>
+                🚪 Log Out
+              </button>
+            </div>
+          </div>
 
-        <div className="download-buttons">
-          <button className="btn" onClick={downloadQRImage}>
-            Download QR (PNG)
-          </button>
-          <button className="btn secondary" onClick={downloadQRPDF}>
-            Download QR (PDF)
-          </button>
+          {/* Right column: QR Code */}
+          <div className="qr-section" ref={qrRef}>
+            <h3>Your QR Code</h3>
+            <QRCodeCanvas value={JSON.stringify(details)} size={200} />
+            <div className="download-buttons">
+              <button className="btn" onClick={downloadQRImage}>
+                📷 Download PNG
+              </button>
+              <button className="btn secondary" onClick={downloadQRPDF}>
+                📄 Download PDF
+              </button>
+              <button className="btn print" onClick={printQR}>
+                🖨️ Print QR
+              </button>
+            </div>
+          </div>
         </div>
       </div>
     </div>
