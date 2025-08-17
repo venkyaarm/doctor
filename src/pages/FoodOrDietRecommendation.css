@@ -1,116 +1,106 @@
-.main-content {
-  /* Ensures content starts below header */
-  padding-top: 60px !important;
-}
-
-.main-heading {
-  text-align: center;
-  color: #2c3e50;
-  font-size: 2.5rem;
-  margin-bottom: 20px;
-  text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-}
-
-.food-diet-container {
+/* Layout */
+.food-diet-layout {
+  display: flex;
+  flex-direction: row;
+  gap: 20px;
+  padding: 20px;
   background: linear-gradient(135deg, #d4fc79, #96e6a1);
   min-height: 100vh;
-  padding: 20px;
-  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  box-sizing: border-box;
 }
 
-/* Form Section */
+.food-diet-left {
+  flex: 1;
+  max-width: 400px;
+}
+
+.food-diet-right {
+  flex: 2;
+  background: #ffffff;
+  padding: 20px;
+  border-radius: 12px;
+  box-shadow: 0px 6px 20px rgba(0,0,0,0.15);
+  overflow-y: auto;
+  max-height: calc(100vh - 100px);
+}
+
+/* Form */
 .form-section {
   background: white;
-  padding: 25px;
-  max-width: 600px;
-  margin: auto;
-  border-radius: 15px;
-  box-shadow: 0px 6px 20px rgba(0,0,0,0.15);
-}
-
-.form-section h2 {
-  text-align: center;
-  margin-bottom: 25px;
-  color: #2c3e50;
+  padding: 20px;
+  border-radius: 10px;
+  margin-bottom: 20px;
+  box-shadow: 0px 4px 12px rgba(0,0,0,0.1);
 }
 
 .input-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 15px;
+  gap: 12px;
   margin-bottom: 15px;
 }
 
 .form-section input,
 .form-section select {
-  width: 100%;
-  padding: 12px;
+  padding: 10px;
+  border: 1px solid #ccc;
   border-radius: 8px;
-  border: 1px solid #ddd;
-  font-size: 14px;
 }
 
-.form-section button {
-  width: 100%;
-  padding: 14px;
-  margin-bottom: 12px;
-  border: none;
+.action-buttons {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.primary-btn {
   background: #28a745;
   color: white;
+  padding: 12px;
+  border: none;
   border-radius: 8px;
   cursor: pointer;
   font-weight: bold;
-  font-size: 15px;
-  transition: all 0.3s;
 }
 
-.form-section button:hover {
-  background: #218838;
-  transform: translateY(-2px);
+.primary-btn:disabled {
+  background: #a5d6a7;
 }
 
-.form-section button:disabled {
-  background: #cccccc;
-  cursor: not-allowed;
+.secondary-btn {
+  background: #007bff;
+  color: white;
+  padding: 12px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
 }
 
 /* Tip Section */
 .tip-section {
   background: #fff3cd;
-  padding: 15px;
-  margin: 20px auto;
-  max-width: 600px;
+  padding: 12px;
   border-radius: 8px;
-  text-align: center;
-  font-size: 16px;
-  box-shadow: 0px 2px 5px rgba(0,0,0,0.1);
+  margin-bottom: 20px;
 }
 
 /* Water Tracker */
 .water-tracker {
-  background: white;
-  padding: 15px;
-  max-width: 600px;
-  margin: 20px auto;
-  border-radius: 10px;
+  background: #fff;
+  padding: 12px;
+  border-radius: 8px;
   text-align: center;
-  box-shadow: 0px 2px 10px rgba(0,0,0,0.1);
-}
-
-.water-tracker h3 {
-  margin-top: 0;
-  color: #3498db;
+  margin-bottom: 20px;
 }
 
 .water-buttons {
   display: flex;
   gap: 10px;
   justify-content: center;
-  flex-wrap: wrap;
 }
 
 .water-buttons button {
-  padding: 8px 15px;
+  padding: 8px 12px;
   border: none;
   border-radius: 5px;
   background: #3498db;
@@ -118,36 +108,20 @@
   cursor: pointer;
 }
 
-/* Search Section */
-.search-section {
-  max-width: 600px;
-  margin: 20px auto;
-}
-
-.search-section input {
-  width: 100%;
-  padding: 12px;
-  border-radius: 8px;
-  border: 1px solid #ddd;
-  font-size: 15px;
-}
-
 /* Tabs */
 .tabs {
   display: flex;
-  justify-content: center;
   gap: 10px;
-  margin: 20px auto;
-  max-width: 600px;
+  margin-bottom: 15px;
 }
 
 .tabs button {
-  padding: 10px 20px;
+  flex: 1;
+  padding: 10px;
   border: none;
   border-radius: 5px;
   background: #e0e0e0;
   cursor: pointer;
-  transition: all 0.3s;
 }
 
 .tabs button.active {
@@ -157,117 +131,60 @@
 
 /* Recommendations */
 .recommendations-section {
-  margin-top: 20px;
-  max-width: 800px;
-  margin-left: auto;
-  margin-right: auto;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
 }
 
 .food-card {
-  background: white;
-  padding: 15px;
-  margin-bottom: 15px;
-  border-radius: 10px;
-  box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
+  background: #f9f9f9;
+  padding: 12px;
+  border-radius: 8px;
   position: relative;
-}
-
-.food-card p {
-  margin: 5px 0;
+  box-shadow: 0px 2px 6px rgba(0,0,0,0.1);
 }
 
 .favorite-btn {
-  position: absolute;
-  right: 15px;
-  top: 15px;
-  padding: 5px 10px;
+  margin-top: 8px;
+  padding: 6px 10px;
+  background: #ff6f61;
+  color: white;
   border: none;
   border-radius: 5px;
-  background: #f8f9fa;
+  cursor: pointer;
+}
+
+.favorite-btn.remove {
+  background: #dc3545;
+}
+
+.export-actions {
+  text-align: right;
+  margin-bottom: 10px;
+}
+
+.export-pdf-btn {
+  background: #6c63ff;
+  color: white;
+  padding: 8px 14px;
+  border-radius: 6px;
+  border: none;
   cursor: pointer;
 }
 
 .empty-state {
   text-align: center;
-  padding: 30px;
-  background: white;
-  border-radius: 10px;
-  box-shadow: 0px 4px 10px rgba(0,0,0,0.1);
-  color: #666;
+  color: #777;
 }
 
-.nutrition-section {
-  max-width: 600px;
-  margin: 20px auto;
-}
-
-/* Export PDF Button */
-.export-pdf-btn {
-  display: block;
-  width: 150px;
-  margin: 0 auto 20px;
-  padding: 10px;
-  background-color: #e74c3c;
-  color: white;
-  border: none;
-  border-radius: 5px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: background-color 0.3s;
-}
-
-.export-pdf-btn:hover {
-  background-color: #c0392b;
-}
-
-.export-pdf-btn:disabled {
-  background-color: #95a5a6;
-  cursor: not-allowed;
-}
-
-/* ✅ Responsive Design */
-
-/* Tablets & Small Screens */
+/* Responsive */
 @media (max-width: 900px) {
-  .recommendations-section {
-    max-width: 95%;
-    padding: 0 10px;
-  }
-
-  .main-heading {
-    font-size: 2rem;
-  }
-}
-
-/* Mobile */
-@media (max-width: 600px) {
-  .input-grid {
-    grid-template-columns: 1fr;
-  }
-
-  .tabs {
+  .food-diet-layout {
     flex-direction: column;
   }
 
-  .export-pdf-btn {
-    width: 100%;
-    margin-bottom: 15px;
-  }
-
-  .main-heading {
-    font-size: 1.8rem;
-  }
-
-  .form-section,
-  .tip-section,
-  .water-tracker,
-  .search-section,
-  .nutrition-section {
-    padding: 15px;
-    max-width: 95%;
-  }
-
-  .food-card {
-    padding: 12px;
+  .food-diet-left,
+  .food-diet-right {
+    max-width: 100%;
   }
 }
