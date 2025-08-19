@@ -41,7 +41,7 @@ export default function Account() {
     const url = canvas.toDataURL("image/png");
     const link = document.createElement("a");
     link.href = url;
-    link.download = "my_qr.png";
+    link.download = "health_qr.png";
     link.click();
   };
 
@@ -52,7 +52,7 @@ export default function Account() {
     pdf.setFontSize(18);
     pdf.text("My Health QR Code", 20, 20);
     pdf.addImage(url, "PNG", 20, 30, 100, 100);
-    pdf.save("my_qr.pdf");
+    pdf.save("health_qr.pdf");
   };
 
   const printQR = () => {
@@ -65,7 +65,7 @@ export default function Account() {
 
   const copyDetails = () => {
     navigator.clipboard.writeText(JSON.stringify(details, null, 2));
-    alert("Details copied to clipboard!");
+    alert("✅ Details copied to clipboard!");
   };
 
   const handleLogout = () => {
@@ -105,11 +105,26 @@ export default function Account() {
             <h3>Personal Details</h3>
             <ul>
               {Object.entries(details).map(([key, value]) => (
-                <li key={key}>
-                  <strong>{key}:</strong> {value.toString()}
-                </li>
+                key !== "cloudinaryUrl" && (
+                  <li key={key}>
+                    <strong>{key}:</strong> {value?.toString()}
+                  </li>
+                )
               ))}
             </ul>
+
+            {details.cloudinaryUrl && (
+              <p>
+                ✅ Uploaded Card:{" "}
+                <a
+                  href={details.cloudinaryUrl}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                >
+                  View Image
+                </a>
+              </p>
+            )}
 
             <div className="account-buttons">
               <button className="btn primary" onClick={copyDetails}>
@@ -124,10 +139,15 @@ export default function Account() {
           {/* Right column: QR Code */}
           <div className="qr-section" ref={qrRef}>
             <h3>Your QR Code</h3>
-            <QRCodeCanvas value={JSON.stringify(details)} size={200} />
+            <QRCodeCanvas
+              value={details.cloudinaryUrl || "No QR generated yet"}
+              size={200}
+              level="H"
+              includeMargin={true}
+            />
             <div className="download-buttons">
               <button className="btn" onClick={downloadQRImage}>
-                📷 Download PNG
+                🖼 Download PNG
               </button>
               <button className="btn secondary" onClick={downloadQRPDF}>
                 📄 Download PDF

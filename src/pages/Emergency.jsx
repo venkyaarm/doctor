@@ -16,13 +16,17 @@ export default function Emergency() {
     return () => clearTimeout(timer);
   }, [countdown]);
 
-  // Share live location
-  const shareLocation = () => {
+  // Share live location with emergency message (opens WhatsApp general chat screen)
+  const sendLocationToWhatsApp = () => {
     if (navigator.geolocation) {
       navigator.geolocation.getCurrentPosition((pos) => {
         const { latitude, longitude } = pos.coords;
         const mapsUrl = `https://www.google.com/maps?q=${latitude},${longitude}`;
-        window.open(mapsUrl, "_blank");
+        const message = `🚨 Emergency! Please send help immediately.\n📍 My Location: ${mapsUrl}`;
+
+        // This opens WhatsApp with message ready to forward to ANY chat (top 5 will show)
+        const whatsappUrl = `https://wa.me/?text=${encodeURIComponent(message)}`;
+        window.open(whatsappUrl, "_blank");
       });
     } else {
       alert("Geolocation not supported by your browser.");
@@ -42,7 +46,9 @@ export default function Emergency() {
           <a href="https://wa.me/91108?text=I%20need%20urgent%20help"
              target="_blank" rel="noopener noreferrer"
              className="btn whatsapp-btn">💬 WhatsApp</a>
-          <button className="btn location-btn" onClick={shareLocation}>📍 Share Location</button>
+          <button className="btn location-btn" onClick={sendLocationToWhatsApp}>
+            📍 Share Location (WhatsApp)
+          </button>
           <button className="btn timer-btn" onClick={() => setCountdown(5)}>
             ⏱ Auto-Call in 5s
           </button>
@@ -53,7 +59,7 @@ export default function Emergency() {
         )}
 
         <p className="note">
-          Stay calm, provide clear information, and follow instructions from emergency responders.
+          ⚠️ Your emergency message will open in WhatsApp — please forward it quickly to your **top 5 chats** for fastest help.
         </p>
 
         <div className="tips-section">

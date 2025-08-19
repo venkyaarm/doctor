@@ -1,9 +1,8 @@
-// src/pages/Register.jsx
 import { useState } from "react";
-import { createUserWithEmailAndPassword } from "firebase/auth";
+import { createUserWithEmailAndPassword, sendEmailVerification } from "firebase/auth";
 import { auth } from "../firebaseConfig";
 import { Link, useNavigate } from "react-router-dom";
-import "./Register.css"; // ✅ Import custom CSS
+import "./Register.css";
 
 export default function Register() {
   const [email, setEmail] = useState("");
@@ -14,14 +13,16 @@ export default function Register() {
   const handleRegister = async (e) => {
     e.preventDefault();
     if (password !== confirmPassword) {
-      alert("Passwords do not match");
+      alert("⚠ Passwords do not match");
       return;
     }
     try {
-      await createUserWithEmailAndPassword(auth, email, password);
+      const userCredential = await createUserWithEmailAndPassword(auth, email, password);
+      await sendEmailVerification(userCredential.user);
+      alert("✅ Verification email sent! Please check your inbox. If not found, check your Spam folder.");
       navigate("/login");
     } catch (error) {
-      alert(error.message);
+      alert("❌ " + error.message);
     }
   };
 

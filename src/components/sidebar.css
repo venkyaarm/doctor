@@ -38,6 +38,28 @@
   background: blue !important; /* Dark background */
   color: white !important;
   transition: width 0.3s ease;
+  display: flex;
+  flex-direction: column;
+}
+
+/* Fixed header inside sidebar */
+.sidebar-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  background: inherit; /* same as sidebar background */
+  padding: 16px;
+  font-size: 1.2rem;
+  font-weight: bold;
+  text-align: center;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Sidebar content (scrollable list) */
+.sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  padding-top: 8px;
 }
 
 /* ===========================
@@ -46,7 +68,7 @@
 @media (max-width: 768px) {
   .MuiDrawer-paper {
     width: 200px !important; /* Smaller sidebar for mobile */
-    background: #040492 !important; /* Slightly different shade */
+    background: #252542 !important; /* Slightly different shade */
   }
 
   .MuiListItemText-primary {

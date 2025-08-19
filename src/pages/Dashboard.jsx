@@ -1,57 +1,58 @@
-import Sidebar from "../components/Sidebar";
 import "./Dashboard.css";
 
 export default function Dashboard() {
   return (
-    <div className="dashboard-container">
-      <Sidebar />
+    <div className="dashboard-main">
+      {/* Welcome Section */}
+      <section className="welcome-section">
+        <h1>
+          Welcome to <span>Health QR Manager</span>
+        </h1>
+        <p>
+          This app helps you store your health details in a QR code. In case of
+          an accident or emergency, doctors can scan your QR code, view your
+          medical information, and contact your family immediately to provide
+          treatment.
+        </p>
+      </section>
 
-      <div className="dashboard-main">
-        
-        {/* Welcome Section */}
-        <section className="welcome-section">
-          <h1>Welcome to <span>Health QR Manager</span></h1>
-          <p>
-            This app helps you store your health details in a QR code. In case of
-            an accident or emergency, doctors can scan your QR code, view your medical
-            information, and contact your family immediately to provide treatment.
-          </p>
-        </section>
-
-        {/* Info Section */}
-        <section className="info-section">
-          <h2>How to Use the App</h2>
-          <div className="info-boxes">
-            <div className="info-box">
-              <h3>Generate QR Code</h3>
-              <p>
-                Fill in your personal and health details. Your QR code is generated automatically.
-              </p>
-            </div>
-
-            <div className="info-box">
-              <h3>Download & Store</h3>
-              <p>
-                Download the QR code and save it on your phone or wallet. It's always ready for emergencies.
-              </p>
-            </div>
-
-            <div className="info-box">
-              <h3>Emergency Use</h3>
-              <p>
-                If an accident happens, doctors scan your QR code to know your medical history, allergies, and health info immediately.
-              </p>
-            </div>
-
-            <div className="info-box">
-              <h3>Family Contact</h3>
-              <p>
-                Your parents or emergency contacts are notified automatically so they can take action quickly.
-              </p>
-            </div>
+      {/* Info Section */}
+      <section className="info-section">
+        <h2>How to Use the App</h2>
+        <div className="info-boxes">
+          <div className="info-box">
+            <h3>Generate QR Code</h3>
+            <p>
+              Fill in your personal and health details. Your QR code is
+              generated automatically.
+            </p>
           </div>
-        </section>
-      </div>
+
+          <div className="info-box">
+            <h3>Download & Store</h3>
+            <p>
+              Download the QR code and save it on your phone or wallet. It's
+              always ready for emergencies.
+            </p>
+          </div>
+
+          <div className="info-box">
+            <h3>Emergency Use</h3>
+            <p>
+              If an accident happens, doctors scan your QR code to know your
+              medical history, allergies, and health info immediately.
+            </p>
+          </div>
+
+          <div className="info-box">
+            <h3>Family Contact</h3>
+            <p>
+              Your parents or emergency contacts are notified automatically so
+              they can take action quickly.
+            </p>
+          </div>
+        </div>
+      </section>
     </div>
   );
 }

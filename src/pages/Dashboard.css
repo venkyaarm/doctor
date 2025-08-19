@@ -4,18 +4,18 @@
   padding: 2rem;
   border-radius: 1rem;
   margin-bottom: 2rem;
-  margin-top: 80px; /* pushes it below navbar */
   text-align: center;
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
 }
 
+/* Main content already gets spacing from SidebarLayout's <Toolbar /> */
 .dashboard-main {
   flex: 1;
   padding: 2rem;
-  padding-top: 0; /* avoid double spacing */
+  padding-top: 0; /* prevent double spacing */
 }
 
-/* Desktop & Tablet */
+/* Info Section Grid */
 .info-boxes {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
@@ -56,7 +56,7 @@
   }
 
   .info-box {
-    max-width: 100%; /* use full width on mobile */
+    max-width: 100%; /* full width */
     padding: 1rem;
   }
 }
