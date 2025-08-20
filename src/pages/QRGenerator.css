@@ -2,18 +2,16 @@
 |--------------------------------------------------------------------------
 | CSS Variables & Base Styles
 |--------------------------------------------------------------------------
-| A refined color palette and modern foundation using CSS variables.
-| This enhances consistency and makes future theming easier.
 */
 :root {
-  --color-primary: #1e88e5; /* A vibrant, but not jarring, blue */
+  --color-primary: #1e88e5;
   --color-primary-dark: #1565c0;
-  --color-accent: #fbc02d; /* A golden yellow for accents */
-  --color-bg-light: #f5f8fa; /* A very soft, light-blue background */
-  --color-text-dark: #37474f; /* A dark slate for strong contrast */
+  --color-accent: #fbc02d;
+  --color-bg-light: #f5f8fa;
+  --color-text-dark: #37474f;
   --color-text-subtle: #607d8b;
   --color-card-bg: #ffffff;
-  --color-border: #e0e0e0; /* A very light, subtle border */
+  --color-border: #e0e0e0;
   --shadow-base: 0 4px 12px rgba(0, 0, 0, 0.08);
   --shadow-hover: 0 8px 25px rgba(0, 0, 0, 0.15);
   --radius-medium: 12px;
@@ -23,26 +21,24 @@
 
 body {
   font-family: 'Inter', sans-serif;
+  background: linear-gradient(135deg, var(--color-bg-light) 0%, #f9fbfd 100%);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  margin: 0;
 }
 
 /*
 |--------------------------------------------------------------------------
-| Main Layout & Card
+| Layout & Card
 |--------------------------------------------------------------------------
-| Center the application and apply advanced styling to the main card container.
 */
 .qr-bg {
   min-height: 100vh;
-  width: 100%;
   display: flex;
   justify-content: center;
   align-items: center;
   padding: 40px 20px;
   box-sizing: border-box;
-  /* A very soft, subtle background gradient for depth */
-  background: linear-gradient(135deg, var(--color-bg-light) 0%, #f9fbfd 100%);
 }
 
 .qr-card {
@@ -51,7 +47,6 @@ body {
   background-color: var(--color-card-bg);
   border-radius: var(--radius-large);
   padding: 40px;
-  /* Multi-layer shadow for depth and elevation */
   box-shadow: var(--shadow-base), inset 0 0 10px rgba(0, 0, 0, 0.02);
   color: var(--color-text-dark);
   animation: fadeIn 0.8s cubic-bezier(0.3, 0.8, 0.5, 1);
@@ -61,7 +56,6 @@ body {
 |--------------------------------------------------------------------------
 | Form & Inputs
 |--------------------------------------------------------------------------
-| Refined styles for form elements with a clean, professional look.
 */
 .qr-grid {
   display: grid;
@@ -105,9 +99,8 @@ body {
 
 /*
 |--------------------------------------------------------------------------
-| QR Code Container & Buttons
+| QR Code & Buttons
 |--------------------------------------------------------------------------
-| Advanced styling for the QR code display and action buttons.
 */
 .qr-code-container {
   display: flex;
@@ -135,13 +128,13 @@ body {
   font-size: 1rem;
   font-weight: 600;
   cursor: pointer;
-  color: var(--color-text-light);
   transition: var(--transition-fast);
   box-shadow: var(--shadow-base);
 }
 
 .qr-btn.primary {
   background-color: var(--color-primary);
+  color: #fff;
 }
 
 .qr-btn.primary:hover {
@@ -163,24 +156,9 @@ body {
 
 /*
 |--------------------------------------------------------------------------
-| Animations & Responsiveness
+| Loading Spinner
 |--------------------------------------------------------------------------
-| Smoother animations and a mobile-first responsive layout.
 */
-@media (max-width: 768px) {
-  .qr-grid {
-    grid-template-columns: 1fr;
-    gap: 20px;
-  }
-  .qr-card {
-    padding: 25px;
-  }
-  .qr-btn {
-    width: 100%;
-    padding: 12px;
-  }
-}
-
 .loading-container {
   display: flex;
   flex-direction: column;
@@ -200,6 +178,11 @@ body {
   margin-bottom: 10px;
 }
 
+/*
+|--------------------------------------------------------------------------
+| Animations
+|--------------------------------------------------------------------------
+*/
 @keyframes fadeIn {
   from { opacity: 0; transform: translateY(30px); }
   to { opacity: 1; transform: translateY(0); }
@@ -207,4 +190,40 @@ body {
 
 @keyframes spin {
   to { transform: rotate(360deg); }
+}
+
+/*
+|--------------------------------------------------------------------------
+| Responsive Layouts
+|--------------------------------------------------------------------------
+*/
+/* 📱 Mobile (max 600px) */
+@media (max-width: 600px) {
+  .qr-grid {
+    grid-template-columns: 1fr;
+    gap: 20px;
+  }
+  .qr-card {
+    padding: 25px;
+  }
+  .qr-btn {
+    width: 100%;
+    padding: 12px;
+  }
+}
+
+/* 💻 Desktop Large Screens (min 1200px) */
+@media (min-width: 1200px) {
+  .qr-card {
+    max-width: 1000px;
+    padding: 60px;
+  }
+  .qr-grid {
+    grid-template-columns: repeat(3, 1fr);
+    gap: 30px 40px;
+  }
+  .qr-btn {
+    font-size: 1.1rem;
+    padding: 16px 36px;
+  }
 }
