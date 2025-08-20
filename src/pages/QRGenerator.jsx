@@ -332,7 +332,7 @@ export default function QRGenerator() {
 
               {(isEditing || !cloudinaryUrl) && (
                 <div className="btn-group">
-                  <button type="button" onClick={saveDetails} className="qr-btn">
+                  <button type="button" onClick={saveDetails} className="save-btn">
                     💾 Save
                   </button>
                   <button
