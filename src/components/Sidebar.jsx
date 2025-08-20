@@ -48,7 +48,6 @@ export default function SidebarLayout() {
     { text: "Hospitals Near Me", icon: <LocalHospitalIcon />, path: "/hospitalsnearme" },
     { text: "Report Analysis", icon: <AssignmentIcon />, path: "/reportanalysis" },
     { text: "Food/Diet Recommendation", icon: <RestaurantIcon />, path: "/foodordietrecommendation" },
-    { text: "My Health Card", icon: <LocalHospitalIcon />, path: "/healthcard" },
   ];
 
   return (

@@ -36,12 +36,14 @@ export default function HealthReportAnalysis() {
   const [capturedImage, setCapturedImage] = useState(null); // Base64 string of captured/uploaded image
   const [analysisResult, setAnalysisResult] = useState(""); // HTML formatted AI result
   const [loading, setLoading] = useState(false);
-  const [errorMessage, setErrorMessage] = useState("");
+  const [errorMessage, setErrorMessage] = useState(null); // MODIFIED: Changed initial state to null to hold JSX
   const [facingMode, setFacingMode] = useState("environment"); // 'environment' (back) or 'user' (front) for camera capture
   const [cameraStream, setCameraStream] = useState(null); // To manage camera stream for stopping
   const [scanMode, setScanMode] = useState('camera'); // 'camera', 'upload', 'qr'
   const [qrScanResult, setQrScanResult] = useState(''); // Stores the text content of scanned QR code
   const [isQrScanning, setIsQrScanning] = useState(false); // State to control QR scanning loop
+  const [isCameraActive, setIsCameraActive] = useState(false); // State to control manual camera activation
+  const [isVideoReady, setIsVideoReady] = useState(false); // NEW: State to track if video stream is ready to capture
 
 
   // Your Gemini API key (IMPORTANT: Keep private in production. For hackathon demo, direct embed is common.)
@@ -55,7 +57,8 @@ export default function HealthReportAnalysis() {
         cameraStream.getTracks().forEach(track => track.stop());
       }
       setCapturedImage(null); // Clear image when camera restarts or mode changes
-      setErrorMessage(""); // Clear any previous camera errors
+      setErrorMessage(null); // MODIFIED: Clear any previous camera errors by setting to null
+      setIsVideoReady(false); // NEW: Reset video ready state
 
       try {
         const videoConstraints = {
@@ -74,27 +77,58 @@ export default function HealthReportAnalysis() {
       } catch (err) {
         console.error("Error accessing camera:", err);
         if (err.name === "NotAllowedError") {
-          setErrorMessage("Camera access denied. Please grant permission in your browser settings.");
+          setErrorMessage(
+            <>
+              <AlertCircle size={20} style={{ verticalAlign: 'middle', marginRight: '5px' }}/>
+              Camera access denied. Please grant permission in your browser settings.
+            </>
+          );
         } else if (err.name === "NotFoundError" || err.name === "DevicesNotFoundError") {
-          setErrorMessage("No camera found. Please ensure a camera is connected and enabled.");
+          setErrorMessage(
+            <>
+              <AlertCircle size={20} style={{ verticalAlign: 'middle', marginRight: '5px' }}/>
+              No camera found. Please ensure a camera is connected and enabled.
+            </>
+          );
         } else {
-          setErrorMessage("Failed to access camera. Please try again.");
+          setErrorMessage(
+            <>
+              <AlertCircle size={20} style={{ verticalAlign: 'middle', marginRight: '5px' }}/>
+              Failed to access camera. Please try again.
+            </>
+          );
         }
+        // If camera fails to start, ensure isCameraActive is false and video is not ready
+        setIsCameraActive(false); 
+        setIsVideoReady(false); // NEW: Ensure video is not marked ready on error
       }
     };
 
+    // MODIFIED: Only start camera if scanMode is 'camera' AND isCameraActive is true
     if (scanMode === 'camera') {
-      startCamera(false);
+      if (isCameraActive) { // Only start if manually activated
+        startCamera(false);
+      } else { // If camera is not active, stop any existing stream
+          if (cameraStream) {
+              cameraStream.getTracks().forEach(track => track.stop());
+              setCameraStream(null);
+          }
+          setIsVideoReady(false); // NEW: Ensure video is not ready if camera is not active
+      }
       setIsQrScanning(false); // Ensure QR scanner is off
     } else if (scanMode === 'qr') {
       startCamera(true);
       setIsQrScanning(true); // Start QR scanning loop
+      setIsCameraActive(false); // Ensure manual camera is off if switching to QR
+      setIsVideoReady(false); // NEW: Reset video ready state for QR mode
     } else { // 'upload' mode or initial state
       if (cameraStream) {
         cameraStream.getTracks().forEach(track => track.stop());
         setCameraStream(null);
       }
       setIsQrScanning(false);
+      setIsCameraActive(false); // Ensure manual camera is off if switching to upload
+      setIsVideoReady(false); // NEW: Reset video ready state for upload mode
     }
 
     // Cleanup function to stop camera when component unmounts or mode changes
@@ -103,8 +137,9 @@ export default function HealthReportAnalysis() {
         cameraStream.getTracks().forEach(track => track.stop());
       }
       setIsQrScanning(false); // Stop QR scanning loop on unmount
+      setIsVideoReady(false); // NEW: Reset video ready state on unmount
     };
-  }, [scanMode, facingMode]); // Re-run if `scanMode` or `facingMode` changes
+  }, [scanMode, facingMode, isCameraActive]); // ADDED: isCameraActive to dependency array
 
   // QR Scanning Loop
   useEffect(() => {
@@ -137,8 +172,13 @@ export default function HealthReportAnalysis() {
               return; // Exit tick to prevent further scanning
             }
           } else {
-            if (!errorMessage.includes("jsQR not loaded")) { // Prevent spamming error message
-              setErrorMessage("QR scanner library (jsQR) not loaded. Please ensure the script is included in your HTML.");
+            if (!errorMessage) { // Prevent spamming error message if already set
+              setErrorMessage(
+                <>
+                  <FileWarning size={20} style={{ verticalAlign: 'middle', marginRight: '5px' }}/>
+                  QR scanner library (jsQR) not loaded. Please ensure the script is included in your HTML.
+                </>
+              );
             }
           }
         }
@@ -162,14 +202,20 @@ export default function HealthReportAnalysis() {
 
   // Function to capture an image from the live camera feed
   const captureImage = () => {
-    if (!videoRef.current || !canvasRef.current) {
-      setErrorMessage("Camera not ready or canvas not found.");
+    // MODIFIED: Ensure videoRef and canvasRef are valid AND video is ready
+    if (!videoRef.current || !canvasRef.current || videoRef.current.readyState !== 4) { // Check readyState
+      setErrorMessage(
+        <>
+          <AlertCircle size={20} style={{ verticalAlign: 'middle', marginRight: '5px' }}/>
+          Camera not ready or canvas not found. Please wait for camera stream to load.
+        </>
+      ); 
       return;
     }
-    setErrorMessage(""); // Clear previous errors
+    setErrorMessage(null); // MODIFIED: Clear previous errors by setting to null
 
     const video = videoRef.current;
-    const canvas = canvas.current;
+    const canvas = canvasRef.current; 
 
     // Set canvas dimensions to match video feed or a reasonable default
     canvas.width = video.videoWidth > 0 ? video.videoWidth : 640;
@@ -179,7 +225,42 @@ export default function HealthReportAnalysis() {
     context.drawImage(video, 0, 0, canvas.width, canvas.height);
     const imageData = canvas.toDataURL("image/jpeg", 0.9); // Use JPEG for smaller size and faster transfer
     setCapturedImage(imageData);
+    // After capturing, automatically stop the camera stream
+    if (cameraStream) {
+        cameraStream.getTracks().forEach(track => track.stop());
+        setCameraStream(null);
+    }
+    setIsCameraActive(false); // Deactivate camera state
+    setIsVideoReady(false); // NEW: Set video ready state to false after capture
   };
+
+  // NEW: Handler to start the camera manually
+  const handleStartCamera = useCallback(async () => {
+    setErrorMessage(null); // MODIFIED: Clear previous errors by setting to null
+    setCapturedImage(null); // Clear any old image
+    setAnalysisResult(""); // Clear old analysis
+    setQrScanResult(''); // Clear QR result
+    setLoading(false); // Ensure loading is off
+
+    // Set scanMode to camera if it's not already, to trigger the useEffect
+    if (scanMode !== 'camera') {
+        setScanMode('camera');
+    }
+    setIsCameraActive(true); // Activate camera state
+    // Note: isVideoReady will be set to true by the video's onLoadedMetadata
+  }, [scanMode]);
+
+  // NEW: Handler to stop the camera manually
+  const handleStopCamera = useCallback(() => {
+    if (cameraStream) {
+      cameraStream.getTracks().forEach(track => track.stop());
+      setCameraStream(null);
+    }
+    setIsCameraActive(false); // Deactivate camera state
+    setIsVideoReady(false); // NEW: Set video ready state to false when stopping
+    setErrorMessage(null); // MODIFIED: Clear any camera-related errors by setting to null
+  }, [cameraStream]);
+
 
   // Function to format Gemini API response into structured HTML for display
   const formatGeminiResponse = (responseText) => {
@@ -196,7 +277,7 @@ export default function HealthReportAnalysis() {
       // Convert Markdown bullet points (* Item) to <li>
       .replace(/^\* (.*)$/gm, '<li>$1</li>');
 
-    // Wrap lists in <ul> tags if they exist
+    // Wrap lists in <ul> tags if they exist and are not already wrapped
     if (formattedHtml.includes('<li>') && !formattedHtml.includes('<ul>')) { // Ensure not double-wrapping
       formattedHtml = formattedHtml.replace(/(<li>.*?<\/li>)+/gs, '<ul>$1</ul>');
     }
@@ -211,7 +292,7 @@ export default function HealthReportAnalysis() {
   const analyzeContent = async (contentParts, prompt) => {
     setLoading(true);
     setAnalysisResult("");
-    setErrorMessage("");
+    setErrorMessage(null); // MODIFIED: Clear error message by setting to null
 
     try {
       const payload = {
@@ -280,7 +361,12 @@ export default function HealthReportAnalysis() {
     } catch (err) {
       console.error("Analysis error:", err);
       // Display a user-friendly error message, including timeout errors
-      setErrorMessage(`Analysis failed: ${err.message || "An unexpected error occurred."} Please try again.`);
+      setErrorMessage(
+        <>
+          <AlertCircle size={20} style={{ verticalAlign: 'middle', marginRight: '5px' }}/>
+          Analysis failed: {err.message || "An unexpected error occurred."} Please try again.
+        </>
+      );
       setAnalysisResult(""); // Clear previous result on error
     } finally {
       setLoading(false); // Ensure loading state is reset regardless of outcome
@@ -290,12 +376,19 @@ export default function HealthReportAnalysis() {
   // Analyze image (from camera or upload)
   const analyzeImage = async () => {
     if (!capturedImage) {
-      setErrorMessage("Please capture or upload an image first!");
+      setErrorMessage(
+        <>
+          <AlertCircle size={20} style={{ verticalAlign: 'middle', marginRight: '5px' }}/>
+          Please capture or upload an image first!
+        </>
+      );
+      setTimeout(() => setErrorMessage(null), 3000);
       return;
     }
     const base64Data = capturedImage.split(",")[1];
     const mimeType = capturedImage.split(",")[0].split(":")[1].split(";")[0];
-    const prompt = `Analyze this medical document image. Provide a structured summary including:
+    // MODIFIED PROMPT: Added instruction for a title
+    const prompt = `Generate a comprehensive health report titled "**My Health Analysis Summary**". Then, provide a structured summary including:
 - **Person Details:** Name, Age, Gender, Contact Info (if present in the document)
 - **Health Details:** Key findings, diagnoses, relevant medical history, vital signs (if present in the document)
 - **Health Tips & Suggestions:** Actionable advice based on the health details.
@@ -308,10 +401,17 @@ Use clear, underlined, and bolded headings for each section. Use bullet points f
   // Analyze QR data (data is text-based)
   const analyzeQrData = async (qrDataToAnalyze = qrScanResult) => {
     if (!qrDataToAnalyze) {
-      setErrorMessage("No QR code data to analyze!");
+      setErrorMessage(
+        <>
+          <AlertCircle size={20} style={{ verticalAlign: 'middle', marginRight: '5px' }}/>
+          No QR code data to analyze!
+        </>
+      );
+      setTimeout(() => setErrorMessage(null), 3000);
       return;
     }
-    const prompt = `Analyze the following QR code data for health details: "${qrDataToAnalyze}". Provide a structured summary including:
+    // MODIFIED PROMPT: Added instruction for a title
+    const prompt = `Generate a comprehensive health report titled "**QR Code Health Data Analysis**". Then, analyze the following QR code data for health details: "${qrDataToAnalyze}". Provide a structured summary including:
 - **Person Details:** Name, Age, Gender, Contact Info (if present in the QR data)
 - **Health Details:** Key findings, diagnoses, relevant medical history, vital signs (if present in the QR data)
 - **Health Tips & Suggestions:** Actionable advice based on the health details.
@@ -329,10 +429,12 @@ Use clear, underlined, and bolded headings for each section. Use bullet points f
     if (!file) return;
 
     setLoading(true);
-    setErrorMessage("");
+    setErrorMessage(null); // MODIFIED: Clear previous error by setting to null
     setCapturedImage(null); // Clear previous capture/QR result
     setAnalysisResult(""); // Clear previous analysis result
-
+    setIsCameraActive(false); // Ensure camera is stopped if uploading
+    setIsVideoReady(false); // NEW: Reset video ready state on file upload
+    
     const mimeType = file.type; // Define mimeType at the beginning of the function scope
 
     const reader = new FileReader();
@@ -354,28 +456,28 @@ Use clear, underlined, and bolded headings for each section. Use bullet points f
       } else if (mimeType === 'text/plain') {
         const textContent = event.target.result;
         setCapturedImage(null); // No image preview for text files
-        prompt = `Analyze the following plain text medical document content: "${textContent}". ${prompt}`; // Adjust prompt for text content
+        prompt = `Generate a comprehensive health report titled "**Text Document Analysis**". Then, analyze the following plain text medical document content: "${textContent}". ${prompt}`; // Adjust prompt for text content
         await analyzeContent([{ text: textContent }], prompt);
       } else if (mimeType === 'application/pdf' || mimeType.includes('wordprocessingml')) {
         // For PDFs and DOCX, set an immediate error message and stop loading
         setLoading(false);
         setErrorMessage(
-          <span>
+          <>
             <FileWarning size={20} style={{ verticalAlign: 'middle', marginRight: '5px' }}/>
             Direct visual analysis of multi-page PDFs or Word documents is not fully supported in the browser due to their complex internal structures.
             For analysis, please convert your document to a **high-resolution image (e.g., JPEG/PNG screenshot per page)** for comprehensive analysis,
             or **copy-paste relevant text** into a plain text file for upload.
-          </span>
+          </>
         );
       } else {
         // Fallback for any other truly unsupported types
         setLoading(false);
         setErrorMessage(
-          <span>
+          <>
             <FileWarning size={20} style={{ verticalAlign: 'middle', marginRight: '5px' }}/>
             File type "{mimeType || 'unknown'}" is not directly supported for analysis.
             Please convert your document to an **image (JPEG/PNG)** or **plain text (.txt)**.
-          </span>
+          </>
         );
       }
     }; // Closing bracket for reader.onload
@@ -400,43 +502,134 @@ Use clear, underlined, and bolded headings for each section. Use bullet points f
   const retakeImage = () => {
     setCapturedImage(null);
     setAnalysisResult("");
-    setErrorMessage("");
+    setErrorMessage(null); // MODIFIED: Clear error message by setting to null
     setQrScanResult(''); // Clear QR result
-    // Camera is already running due to useEffect if scanMode is 'camera'
-    // For QR mode, re-enable scanning if not already
-    if (scanMode === 'qr') setIsQrScanning(true);
+    // Camera is handled by isCameraActive now
+    setIsCameraActive(false); // Ensure camera is off when retaking
+    setIsVideoReady(false); // NEW: Reset video ready state on retake
+
+    // If switching back to camera mode, automatically activate it for user convenience
+    if (scanMode === 'camera') {
+        // We'll let the user click "Start Camera" if they want to reactive
+        // the live stream after retaking/clearing.
+    } else if (scanMode === 'qr') {
+        setIsQrScanning(true); // Restart QR scanning loop
+    }
   };
 
   // Export analysis to PDF
   const exportToPdf = () => {
     if (!analysisResult) {
-      setErrorMessage("No analysis result to export to PDF.");
+      setErrorMessage(
+        <>
+          <AlertCircle size={20} style={{ verticalAlign: 'middle', marginRight: '5px' }}/>
+          No analysis result to export to PDF.
+        </>
+      );
+      setTimeout(() => setErrorMessage(null), 3000); // Clear message after 3 seconds
       return;
     }
+    // CRITICAL: Check if html2pdf is available (it must be loaded via a script tag in index.html)
     if (typeof window.html2pdf === 'undefined') {
-        setErrorMessage("PDF export library (html2pdf.js) not loaded. Please ensure the script is included in your HTML.");
+        setErrorMessage(
+            <>
+                <FileWarning size={20} style={{ verticalAlign: 'middle', marginRight: '5px' }}/>
+                PDF export library (html2pdf.js) not loaded. Please ensure the script is included in your `public/index.html` file. Refer to the comments in `ReportAnalysis.jsx` for the exact script tag.
+            </>
+        );
+        setTimeout(() => setErrorMessage(null), 7000); // Keep message longer for instructions
         return;
     }
 
+    // Create a temporary element to render the PDF content with custom styling
     const element = document.createElement('div');
-    element.innerHTML = analysisResult; // Use innerHTML to preserve formatting
+    const currentDate = new Date().toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' });
+
+    element.innerHTML = `
+        <div style="font-family: 'Inter', sans-serif; padding: 25mm; color: #333; line-height: 1.6; background-color: #ffffff;">
+            <header style="text-align: center; margin-bottom: 25mm; padding-bottom: 10mm; border-bottom: 3px solid #0077b6;">
+                <h1 style="color: #0077b6; font-size: 2.5em; margin: 0; font-weight: 800;">Health Report Analysis</h1>
+                <p style="font-size: 1.1em; color: #666; margin-top: 10px;">Generated on: ${currentDate}</p>
+            </header>
+
+            <section style="background-color: #fcfcfc; border: 1px solid #e0e0e0; border-radius: 12px; padding: 20mm; box-shadow: 0 4px 15px rgba(0,0,0,0.05);">
+                <h2 style="color: #005f8a; font-size: 1.8em; margin-top: 0; margin-bottom: 15mm; border-bottom: 2px solid #a7d9ed; padding-bottom: 5mm;">
+                    Analysis Results
+                </h2>
+                <div class="analysis-result-content-for-pdf">
+                    ${analysisResult}
+                </div>
+            </section>
+
+            <footer style="text-align: center; margin-top: 30mm; font-size: 0.8em; color: #999;">
+                <p>Confidential &copy; Health Report Analysis Application</p>
+                <p>This document is for informational purposes only and not a substitute for professional medical advice.</p>
+            </footer>
+        </div>
+
+        <style>
+            /* Specific styles for PDF output to ensure professional appearance */
+            @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&display=swap');
+            body { font-family: 'Inter', sans-serif; }
+            .analysis-result-content-for-pdf h3 {
+                color: #005f8a; /* Consistent with primary, but distinct for subheadings */
+                font-size: 1.4em;
+                margin-top: 1.8em;
+                margin-bottom: 0.8em;
+                padding-bottom: 4px;
+                border-bottom: 1px solid #c9d6ff; /* Lighter, subtle underline */
+                font-weight: 700;
+            }
+            .analysis-result-content-for-pdf strong {
+                color: #0077b6; /* Primary color for bold text */
+                font-weight: 600;
+            }
+            .analysis-result-content-for-pdf ul {
+                list-style-type: disc;
+                margin-left: 30px; /* More indent */
+                padding-left: 0;
+                margin-top: 1em;
+                margin-bottom: 1em;
+            }
+            .analysis-result-content-for-pdf li {
+                margin-bottom: 0.5em;
+                line-height: 1.5;
+            }
+            .analysis-result-content-for-pdf p {
+                margin-bottom: 1.2em;
+                line-height: 1.7;
+            }
+        </style>
+    `;
 
     const opt = {
-      margin:       [10, 10, 10, 10], // top, left, bottom, right
-      filename:     'health_report_analysis.pdf',
+      margin:       [15, 15, 15, 15], // More balanced margins (top, left, bottom, right in mm)
+      filename:     `health_report_analysis_${currentDate.replace(/\s/g, '_')}.pdf`, // Dynamic filename
       image:        { type: 'jpeg', quality: 0.98 },
-      html2canvas:  { scale: 2, logging: true, dpi: 192, letterRendering: true },
+      html2canvas:  { scale: 3, logging: true, dpi: 192, letterRendering: true, useCORS: true }, // Higher scale for better clarity
       jsPDF:        { unit: 'mm', format: 'a4', orientation: 'portrait' }
     };
 
     window.html2pdf().from(element).set(opt).save();
-    setErrorMessage("Analysis exported to PDF!");
+    setErrorMessage(
+      <>
+        <CheckCircle size={20} style={{ verticalAlign: 'middle', marginRight: '5px' }}/>
+        Analysis exported to PDF successfully!
+      </>
+    ); // MODIFIED: Use JSX for success message too
+    setTimeout(() => setErrorMessage(null), 3000); // MODIFIED: Clear success message after 3 seconds
   };
 
   // Export analysis to TXT
   const exportToTxt = () => {
     if (!analysisResult) {
-      setErrorMessage("No analysis result to export to TXT.");
+      setErrorMessage(
+        <>
+          <AlertCircle size={20} style={{ verticalAlign: 'middle', marginRight: '5px' }}/>
+          No analysis result to export to TXT.
+        </>
+      );
+      setTimeout(() => setErrorMessage(null), 3000); // Clear message after 3 seconds
       return;
     }
     const tempDiv = document.createElement('div');
@@ -452,13 +645,25 @@ Use clear, underlined, and bolded headings for each section. Use bullet points f
     a.click();
     document.body.removeChild(a);
     URL.revokeObjectURL(url);
-    setErrorMessage("Analysis exported to TXT!");
+    setErrorMessage(
+      <>
+        <CheckCircle size={20} style={{ verticalAlign: 'middle', marginRight: '5px' }}/>
+        Analysis exported to TXT successfully!
+      </>
+    ); // MODIFIED: Use JSX for success message too
+    setTimeout(() => setErrorMessage(null), 3000); // MODIFIED: Clear success message after 3 seconds
   };
 
   // Copy analysis to clipboard
   const copyToClipboard = () => {
     if (!analysisResult) {
-      setErrorMessage("No analysis result to copy.");
+      setErrorMessage(
+        <>
+          <AlertCircle size={20} style={{ verticalAlign: 'middle', marginRight: '5px' }}/>
+          No analysis result to copy.
+        </>
+      );
+      setTimeout(() => setErrorMessage(null), 3000); // Clear message after 3 seconds
       return;
     }
     const tempDiv = document.createElement('div');
@@ -473,11 +678,22 @@ Use clear, underlined, and bolded headings for each section. Use bullet points f
       el.select();
       document.execCommand('copy');
       document.body.removeChild(el);
-      setErrorMessage("Analysis copied to clipboard!");
+      setErrorMessage(
+        <>
+          <CheckCircle size={20} style={{ verticalAlign: 'middle', marginRight: '5px' }}/>
+          Analysis copied to clipboard!
+        </>
+      ); // MODIFIED: Use JSX for success message too
     } catch (err) {
       console.error('Failed to copy text:', err);
-      setErrorMessage("Failed to copy analysis to clipboard. Please copy manually.");
+      setErrorMessage(
+        <>
+          <AlertCircle size={20} style={{ verticalAlign: 'middle', marginRight: '5px' }}/>
+          Failed to copy analysis to clipboard. Please copy manually.
+        </>
+      ); // MODIFIED: Use JSX for error message too
     }
+    setTimeout(() => setErrorMessage(null), 3000); // MODIFIED: Clear success/error message after 3 seconds
   };
 
 
@@ -680,6 +896,20 @@ Use clear, underlined, and bolded headings for each section. Use bullet points f
         .upload-btn:hover:not(:disabled) {
             background: var(--secondary-hover);
         }
+        /* NEW: Styles for camera control buttons */
+        .camera-control-btn {
+            background: #6a0dad; /* Purple for control buttons */
+        }
+        .camera-control-btn.stop-camera {
+            background: var(--danger-color); /* Red for stop */
+        }
+        .camera-control-btn:hover:not(:disabled) {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.15);
+        }
+        .camera-control-btn.stop-camera:hover:not(:disabled) {
+            background: var(--danger-hover);
+        }
 
 
         .captured-image-preview {
@@ -779,6 +1009,11 @@ Use clear, underlined, and bolded headings for each section. Use bullet points f
             background-color: var(--error-bg);
             color: var(--error-text);
             border-color: var(--error-text);
+        }
+        .status-message.success { /* MODIFIED: Added success class styles */
+            background-color: var(--success-bg);
+            color: var(--success-text);
+            border-color: var(--success-text);
         }
         .status-message.loading {
             background-color: #e0f2f7; /* Light blue loading background */
@@ -881,32 +1116,33 @@ Use clear, underlined, and bolded headings for each section. Use bullet points f
       <div className="report-analysis-box">
         <h1><FileText size={36} /> Health Report Analysis</h1>
 
+        {/* MODIFIED: Check if errorMessage is not null before rendering */}
         {errorMessage && (
           <div className="status-message error">
-            <AlertCircle size={20} />
-            <span>{errorMessage}</span>
-            <button className="close-btn" onClick={() => setErrorMessage("")}><XCircle size={18} /></button>
+            {/* The icon is now part of the errorMessage JSX */}
+            <span>{errorMessage}</span> 
+            <button className="close-btn" onClick={() => setErrorMessage(null)}><XCircle size={18} /></button>
           </div>
         )}
 
         {/* Mode Selection Buttons (Always visible) */}
         <div className="mode-selection-buttons">
           <button
-            onClick={() => { setScanMode('camera'); setCapturedImage(null); setAnalysisResult(''); setQrScanResult(''); }}
+            onClick={() => { setScanMode('camera'); setCapturedImage(null); setAnalysisResult(''); setQrScanResult(''); setIsCameraActive(false); setIsVideoReady(false); setErrorMessage(null); }} // Reset camera states on mode change
             className={scanMode === 'camera' ? 'active' : ''}
             disabled={loading}
           >
             <Camera size={20} /> Capture Document
           </button>
           <button
-            onClick={() => { setScanMode('upload'); setCapturedImage(null); setAnalysisResult(''); setQrScanResult(''); }}
+            onClick={() => { setScanMode('upload'); setCapturedImage(null); setAnalysisResult(''); setQrScanResult(''); setIsCameraActive(false); setIsVideoReady(false); setErrorMessage(null); }} // Reset camera states on mode change
             className={scanMode === 'upload' ? 'active' : ''}
             disabled={loading}
           >
             <Upload size={20} /> Upload Document
           </button>
           <button
-            onClick={() => { setScanMode('qr'); setCapturedImage(null); setAnalysisResult(''); setQrScanResult(''); }}
+            onClick={() => { setScanMode('qr'); setCapturedImage(null); setAnalysisResult(''); setQrScanResult(''); setIsCameraActive(false); setIsVideoReady(false); setErrorMessage(null); }} // Reset camera states on mode change
             className={scanMode === 'qr' ? 'active' : ''}
             disabled={loading}
           >
@@ -917,15 +1153,35 @@ Use clear, underlined, and bolded headings for each section. Use bullet points f
         {/* Camera Capture Mode (Always rendered if scanMode is camera) */}
         {scanMode === 'camera' && (
           <>
-            {!capturedImage && ( // Only show video if no image captured yet in camera mode
+            {!capturedImage && !isCameraActive && ( // Show Start Camera button if no image and camera is not active
+              <div className="action-buttons-row">
+                <button onClick={handleStartCamera} disabled={loading} className="camera-control-btn">
+                  <Camera size={20} /> Start Camera
+                </button>
+              </div>
+            )}
+            
+            {isCameraActive && !capturedImage && ( // Only show video and related controls if camera is active AND no image captured
               <>
-                <video ref={videoRef} autoPlay playsInline muted style={{ transform: facingMode === 'user' ? 'scaleX(-1)' : 'scaleX(1)' }}></video>
+                <video 
+                  ref={videoRef} 
+                  autoPlay 
+                  playsInline 
+                  muted 
+                  style={{ transform: facingMode === 'user' ? 'scaleX(-1)' : 'scaleX(1)' }}
+                  onLoadedMetadata={() => setIsVideoReady(true)} // NEW: Set video ready when metadata loads
+                ></video>
+                <canvas ref={canvasRef} style={{ display: 'none' }}></canvas> {/* Hidden canvas for image capture */}
+
                 <div className="action-buttons-row">
-                  <button onClick={captureImage} className="capture-btn" disabled={loading}>
+                  <button onClick={captureImage} className="capture-btn" disabled={loading || !isVideoReady}> {/* NEW: Disable if video not ready */}
                     <Camera size={20} /> Capture Image
                   </button>
-                  <button onClick={toggleFacingMode} className="flip-camera-btn" disabled={loading}>
+                  <button onClick={toggleFacingMode} className="flip-camera-btn" disabled={loading || !isVideoReady}> {/* NEW: Disable if video not ready */}
                     <FlipHorizontal size={20} /> Flip Camera
+                  </button>
+                  <button onClick={handleStopCamera} className="camera-control-btn stop-camera" disabled={loading}>
+                    <StopCircle size={20} /> Stop Camera
                   </button>
                 </div>
               </>
@@ -934,7 +1190,7 @@ Use clear, underlined, and bolded headings for each section. Use bullet points f
         )}
 
         {/* Upload Document Mode (Always rendered if scanMode is upload) */}
-        {scanMode === 'upload' && ( // Removed !capturedImage condition here to keep the file input button always visible in upload mode
+        {scanMode === 'upload' && ( 
           <div className="action-buttons-row">
             <input
               type="file"
@@ -943,7 +1199,7 @@ Use clear, underlined, and bolded headings for each section. Use bullet points f
               style={{ display: "none" }}
               onChange={handleFileUpload}
             />
-            <button onClick={() => fileInputRef.current.click()} className="upload-btn" disabled={loading || capturedImage}> {/* Disable upload if an image is already captured/uploaded to avoid confusion */}
+            <button onClick={() => fileInputRef.current.click()} className="upload-btn" disabled={loading || capturedImage}> 
               <Upload size={20} /> Select File to Upload
             </button>
           </div>

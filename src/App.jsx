@@ -15,7 +15,6 @@ import Emergency from "./pages/Emergency";
 import HospitalsNearMe from "./pages/HospitalsNearMe";
 import ReportAnalysis from "./pages/ReportAnalysis";
 import FoodOrDietRecommendation from "./pages/FoodOrDietRecommendation";
-import HealthCard from "./pages/HealthCard";
 
 // Components
 import PrivateRoute from "./components/PrivateRoute";
@@ -50,7 +49,6 @@ export default function App() {
           <Route path="hospitalsnearme" element={<HospitalsNearMe />} />
           <Route path="reportanalysis" element={<ReportAnalysis />} />
           <Route path="foodordietrecommendation" element={<FoodOrDietRecommendation />} />
-          <Route path="healthcard" element={<HealthCard />} />
         </Route>
 
         {/* Fallback for unknown routes */}

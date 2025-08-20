@@ -1,315 +1,681 @@
 /* ✅ Desktop & Mobile Responsive SkinCare.css */
 
+/* --- Global Color Variables --- */
+:root {
+    --primary-green: #4CAF50; /* Used for main actions, search */
+    --primary-green-dark: #388E3C;
+    --secondary-blue: #2196F3; /* Used for exports, some buttons */
+    --secondary-blue-dark: #1976D2;
+    --accent-orange: #FF9800; /* Used for problem buttons */
+    --accent-orange-dark: #FB8C00;
+    --text-color-light: #333333;
+    --text-color-dark: #EEEEEE;
+    --bg-light: rgba(255, 255, 255, 0.95);
+    --bg-dark: rgba(30, 30, 30, 0.95);
+    --card-bg-light: #F9FBE7; /* Light background for remedy box */
+    --card-bg-dark: #3A3A3A;
+    --border-light: #E0E0E0;
+    --border-dark: #555555;
+    --shadow-light: rgba(0, 0, 0, 0.15);
+    --shadow-dark: rgba(0, 0, 0, 0.3);
+}
+
 /* Base Styles */
-body,
-html {
-  margin: 0;
-  padding: 0;
-  font-family: 'Segoe UI', sans-serif;
-  background: transparent;
-  color: #222;
-  overflow-x: hidden;
-  min-height: 100vh;
+body, html {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif; /* Recommended: Consistency with React components */
+    background: transparent; /* Assuming a background video or parent container handles this */
+    color: var(--text-color-light); /* Use CSS variable */
+    overflow-x: hidden;
+    min-height: 100vh;
+}
+
+/* Dark Mode Variables */
+.dark {
+    --text-color-light: #EEEEEE; /* Text becomes light in dark mode */
+    --text-color-dark: #333333; /* For elements that need inverse contrast */
+    --bg-light: rgba(30, 30, 30, 0.95); /* Main wrapper background in dark mode */
+    --bg-dark: rgba(255, 255, 255, 0.95); /* For elements that need inverse contrast */
+    --card-bg-light: #3A3A3A; /* Card backgrounds in dark mode */
+    --card-bg-dark: #F9FBE7; /* For elements that need inverse contrast */
+    --border-light: #555555; /* Borders in dark mode */
+    --border-dark: #E0E0E0; /* For elements that need inverse contrast */
+    --shadow-light: rgba(0, 0, 0, 0.3);
+    --shadow-dark: rgba(0, 0, 0, 0.15);
 }
 
 /* Container */
 .face-remedy-container {
-  position: relative;
-  z-index: 1;
-  min-height: 100vh;
-  display: flex;
-  justify-content: center;
-  align-items: center;
+    position: relative;
+    z-index: 1;
+    min-height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
 }
 
 /* Background Video */
 .bg-video {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100vw;
-  height: 100vh;
-  object-fit: cover;
-  z-index: -1;
-  opacity: 0.4;
-  filter: brightness(1.3) contrast(1.1);
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100vw;
+    height: 100vh;
+    object-fit: cover;
+    z-index: -1;
+    opacity: 0.4;
+    filter: brightness(1.3) contrast(1.1);
 }
 
 /* Main Wrapper */
 .main-wrapper {
-  background: rgba(255, 255, 255, 0.0);
-  backdrop-filter: blur(12px);
-  padding: 30px;
-  border-radius: 20px;
-  width: 90%;
-  max-width: 950px;
-  margin: 20px auto;
-  box-shadow: 0 0 20px rgba(0, 0, 0, 0.2);
-  transition: background 0.3s ease;
-  min-height: auto;
-  padding-bottom: 180px; /* Space for fixed controls */
+    background: var(--bg-light); /* Use variable */
+    backdrop-filter: blur(15px); /* Slightly stronger blur */
+    padding: 30px;
+    /* ADJUSTED: Increased padding-top to prevent title/buttons overlap */
+    padding-top: 100px; /* Provides ample space for the sticky topbar */
+    border-radius: 25px; /* More rounded corners */
+    width: 90%;
+    max-width: 950px;
+    margin: 20px auto;
+    box-shadow: 0 10px 30px var(--shadow-light); /* Softer, wider shadow */
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+    min-height: auto;
+    padding-bottom: 180px; /* Space for fixed controls */
+    overflow: hidden; /* Ensures inner elements respect border-radius */
+    border: 1px solid rgba(255, 255, 255, 0.3); /* Subtle light border */
+}
+
+/* Dark Mode Main Wrapper */
+.dark .main-wrapper {
+    background: var(--bg-dark); /* Use variable */
+    box-shadow: 0 10px 30px var(--shadow-dark); /* Dark mode shadow */
+    border: 1px solid rgba(0, 0, 0, 0.3); /* Dark mode border */
 }
 
 /* Topbar */
 .topbar {
-  display: flex;
-  justify-content: space-between;
-  align-items: center;
-  margin-bottom: 20px;
-  position: sticky;
-  top: 0;
-  background: rgba(255, 255, 255, 0.9);
-  padding: 15px;
-  z-index: 100;
-  backdrop-filter: blur(5px);
-  border-radius: 10px;
+    display: flex;
+    justify-content: center; /* Center content horizontally */
+    align-items: center;
+    /* ADJUSTED: Removed negative top margin, adjusted side margins */
+    margin: 0 -30px 20px -30px; /* No negative top margin, use padding-top on main-wrapper */
+    position: sticky;
+    top: 0; /* Ensures it sticks to the very top */
+    background: var(--bg-light); /* Use variable */
+    padding: 15px 30px; /* Adjust padding to match extended margin */
+    z-index: 100;
+    backdrop-filter: blur(5px);
+    border-radius: 15px; /* Match main wrapper's top corners */
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.05); /* Subtle shadow for depth */
+    border-bottom: 1px solid var(--border-light); /* Separator */
+    transition: background 0.3s ease, border-bottom-color 0.3s ease;
 }
 
+/* Dark Mode Topbar */
 .dark .topbar {
-  background: rgba(30, 30, 30, 0.9);
+    background: var(--bg-dark); /* Use variable */
+    border-bottom: 1px solid var(--border-dark);
 }
 
 .title {
-  font-size: 2rem;
-  font-weight: bold;
-  color: #2e7d32;
+    font-size: 2.3rem; /* Slightly larger title */
+    font-weight: bold;
+    color: var(--primary-green); /* Use palette variable */
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: color 0.3s ease;
+    justify-content: center;
+    width: 100%; /* Ensure it takes full width to center itself in parent */
 }
 
 .dark-toggle {
-  background: none;
-  border: none;
-  font-size: 1.8rem;
-  cursor: pointer;
-  color: #333;
+    display: none; /* Hide the dark mode toggle button */
 }
 
-.dark .dark-toggle {
-  color: #fff;
-}
 
-/* Search Box */
-.search-box {
-  position: fixed;
-  bottom: 80px;
-  left: 0;
-  right: 0;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  padding: 15px;
-  background: rgba(255, 255, 255, 0.95);
-  z-index: 100;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.dark .search-box {
-  background: rgba(30, 30, 30, 0.95);
-}
-
-.search-box input {
-  flex: 1;
-  max-width: 400px;
-  padding: 12px 16px;
-  border: 2px solid #ccc;
-  border-radius: 8px;
-  font-size: 1rem;
-}
-
-.mic,
-.search-btn {
-  background-color: #4caf50;
-  color: white;
-  padding: 12px 16px;
-  border: none;
-  border-radius: 8px;
-  font-size: 1rem;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  gap: 5px;
-}
-
-.search-btn.stop {
-  background-color: #f44336;
-}
-
-/* Buttons & Controls */
+/* Problem Buttons */
 .problem-buttons {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 10px;
-  justify-content: center;
-  margin-bottom: 20px;
+    display: flex;
+    flex-wrap: wrap; /* Allow buttons to wrap to the next line */
+    gap: 12px; /* Increased gap for better spacing between buttons */
+    justify-content: center; /* Center items on each line */
+    margin-bottom: 25px; /* Slightly more space below the buttons */
+    padding: 0 15px; /* Added horizontal padding to prevent stretching edge-to-edge */
 }
 
 .problem-buttons button {
-  background: #ffcc80;
-  border: none;
-  padding: 10px 14px;
-  border-radius: 10px;
-  cursor: pointer;
-  font-weight: bold;
-  transition: background 0.3s ease;
+    background: var(--accent-orange); /* Use palette variable */
+    color: white; /* Ensure text is visible */
+    border: none;
+    padding: 12px 18px; /* Slightly more padding */
+    border-radius: 25px; /* Pill shape */
+    cursor: pointer;
+    font-weight: 600; /* Bolder text */
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    white-space: nowrap; /* Prevent text from wrapping inside the button */
+    flex-shrink: 0; /* Prevent buttons from shrinking too much */
 }
 
 .problem-buttons button:hover {
-  background: #ffb74d;
+    background: var(--accent-orange-dark); /* Darker on hover */
+    transform: translateY(-2px); /* Lift effect */
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
 }
 
 /* Remedy Section */
 .remedy-box {
-  background: #f9fbe7;
-  padding: 20px;
-  border-radius: 15px;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-  text-align: left;
-  max-height: 50vh;
-  overflow-y: auto;
-  margin-bottom: 20px;
+    background: var(--card-bg-light); /* Use variable */
+    padding: 25px; /* More padding */
+    border-radius: 18px; /* Slightly more rounded */
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1); /* Clearer shadow */
+    text-align: left; /* Keep left alignment for readability */
+    max-height: 50vh;
+    overflow-y: auto;
+    margin-bottom: 20px;
+    border: 1px solid var(--border-light); /* Subtle border */
+    transition: background-color 0.3s ease, border-color 0.3s ease;
 }
 
-.dark .remedy-box,
-.dark .search-box input {
-  background-color: #222;
-  color: #eee;
-  border-color: #444;
+/* Dark Mode Remedy Box */
+.dark .remedy-box {
+    background-color: var(--card-bg-dark); /* Use variable */
+    color: var(--text-color-light); /* Use variable */
+    border-color: var(--border-dark); /* Use variable */
 }
 
 .remedy-box h2 {
-  color: #6d4c41;
+    color: var(--accent-orange); /* Match problem buttons for consistency */
+    font-size: 1.8rem; /* Larger heading */
+    margin-bottom: 15px;
+    text-align: center;
+    transition: color 0.3s ease;
 }
 
 .remedy-content {
-  white-space: pre-line;
-  margin-top: 10px;
-  font-size: 1rem;
-  line-height: 1.6;
+    font-size: 1.15rem; /* Slightly larger font size for better readability */
+    line-height: 1.9; /* Increased line height for more breathing room */
+    letter-spacing: 0.02em; /* Subtle letter spacing for improved attractiveness */
+    color: var(--text-color-light); /* Use variable */
+    word-break: break-word; /* Breaks long words */
+    transition: color 0.3s ease;
+    text-align: left; /* Ensure left alignment */
+    padding: 0; /* Remove padding from this element, the parent .remedy-box has it */
 }
 
-/* Bottom Controls */
-.bottom-controls {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  display: flex;
-  justify-content: center;
-  gap: 15px;
-  padding: 15px;
-  background: rgba(255, 255, 255, 0.95);
-  z-index: 100;
-  box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.1);
-}
-
-.dark .bottom-controls {
-  background: rgba(30, 30, 30, 0.95);
-}
-
-.bottom-controls button {
-  padding: 12px 16px;
-  border: none;
-  background-color: #2196f3;
-  color: white;
-  border-radius: 8px;
-  font-size: 1rem;
-  cursor: pointer;
+/* Dark Mode Remedy Content */
+.dark .remedy-content {
+    color: var(--text-color-light); /* Use variable */
 }
 
 /* Loader */
-.loader {
-  border: 6px solid #f3f3f3;
-  border-top: 6px solid #4caf50;
-  border-radius: 50%;
-  width: 40px;
-  height: 40px;
-  animation: spin 1s linear infinite;
-  margin: 0 auto;
+.spinner-container {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 15px;
+    padding: 30px; /* Ample space */
 }
+.loader {
+    border: 6px solid rgba(76, 175, 80, 0.2); /* Lighter base border */
+    border-top: 6px solid var(--primary-green); /* Primary green spinner */
+    border-radius: 50%;
+    width: 50px; /* Slightly larger loader */
+    height: 50px;
+    animation: spin 1s linear infinite;
+    margin: 0 auto;
+}
+.spinner-container p {
+    color: var(--text-color-light); /* Use variable */
+    font-style: italic;
+    font-size: 1.1rem;
+    transition: color 0.3s ease;
+}
+/* Dark Mode Spinner Text */
+.dark .spinner-container p {
+    color: var(--text-color-light); /* Use variable */
+}
+
+/* Initial state/empty message for div tag */
+.remedy-box .remedy-content:empty:before {
+    content: "No remedy found. Please search for a skin issue.";
+    color: var(--text-color-light); /* Use variable */
+    font-size: 1.1em;
+    text-align: center;
+    opacity: 0.7;
+    display: block; /* Ensures content is centered */
+    padding: 20px;
+    transition: color 0.3s ease;
+}
+
+/* Dark Mode Initial/Empty Message */
+.dark .remedy-box .remedy-content:empty:before {
+    color: var(--text-color-light); /* Use variable */
+}
+
 
 /* Webcam */
 .webcam-container {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background: rgba(0, 0, 0, 0.8);
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.85); /* Slightly darker overlay */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    animation: fadeIn 0.3s ease-out; /* Fade in animation */
 }
 
 .webcam-video {
-  max-width: 90%;
-  max-height: 70vh;
-  border-radius: 10px;
-  transform: scaleX(-1); /* Mirror effect */
+    max-width: 90%;
+    max-height: 70vh;
+    border-radius: 10px;
+    transform: scaleX(-1); /* Mirror effect */
+    box-shadow: 0 5px 20px rgba(0, 0, 0, 0.3); /* Shadow for webcam feed */
 }
+
+.webcam-controls {
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    margin-top: 20px;
+}
+
+.webcam-controls button {
+    padding: 12px 20px;
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+    transition: all 0.3s ease;
+}
+
+.capture-btn {
+    background-color: var(--primary-green); /* Use variable */
+    color: white;
+}
+.capture-btn:hover {
+    background-color: var(--primary-green-dark); /* Use variable */
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+}
+
+.cancel-btn {
+    background-color: #9E9E9E; /* Grey */
+    color: white;
+}
+.cancel-btn:hover {
+    background-color: #757575;
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0,0,0,0.15);
+}
+
+/* Image Preview */
+.image-preview {
+    background: var(--card-bg-light); /* Use variable */
+    padding: 25px;
+    border-radius: 18px;
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
+    /* Centering content within image-preview */
+    display: flex;
+    flex-direction: column;
+    align-items: center; /* Center horizontally */
+    text-align: center; /* Center text within p tags */
+    border: 1px solid var(--border-light); /* Subtle border */
+    transition: background-color 0.3s ease, border-color 0.3s ease;
+}
+
+.dark .image-preview {
+    background: var(--card-bg-dark); /* Use variable */
+    border: 1px solid var(--border-dark); /* Use variable */
+}
+
+.image-preview img {
+    max-width: 100%;
+    height: auto;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.image-preview p {
+    font-size: 1.1rem;
+    color: var(--text-color-light); /* Use variable */
+    margin-top: 0;
+    margin-bottom: 20px;
+    font-weight: 500;
+    transition: color 0.3s ease;
+}
+.dark .image-preview p {
+    color: var(--text-color-light); /* Use variable */
+}
+
+/* Skin Analysis Table */
+.skin-analysis-table {
+    width: 100%; /* Ensure it takes full width of its container */
+    max-width: 600px; /* Max width to keep it from getting too wide on large screens */
+    border-collapse: separate; /* Allows border-radius on cells */
+    border-spacing: 0; /* Remove default spacing */
+    margin-top: 15px;
+    margin-bottom: 20px;
+    border: 1px solid var(--border-light); /* Use variable */
+    border-radius: 10px;
+    overflow: hidden; /* Ensures contents respect border-radius */
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08); /* Subtle shadow for table */
+    transition: border-color 0.3s ease;
+    /* Centering the table itself */
+    margin-left: auto;
+    margin-right: auto;
+}
+.dark .skin-analysis-table {
+    border: 1px solid var(--border-dark); /* Use variable */
+}
+
+.skin-analysis-table th,
+.skin-analysis-table td {
+    padding: 12px 15px;
+    text-align: center;
+    border-right: 1px solid var(--border-light); /* Use variable */
+    border-bottom: 1px solid var(--border-light); /* Use variable */
+    transition: border-color 0.3s ease, background-color 0.3s ease;
+    font-size: 0.9rem; /* Slightly smaller for table readability */
+}
+
+.dark .skin-analysis-table th,
+.dark .skin-analysis-table td {
+    border-right: 1px solid var(--border-dark); /* Use variable */
+    border-bottom: 1px solid var(--border-dark); /* Use variable */
+}
+
+.skin-analysis-table th {
+    background-color: var(--secondary-blue); /* Use variable */
+    color: white;
+    font-weight: 600;
+    font-size: 0.95rem;
+    text-transform: uppercase;
+}
+.dark .skin-analysis-table th {
+    background-color: #3f51b5; /* Slightly different blue for dark mode header */
+}
+
+/* Remove last column's right border and last row's bottom border */
+.skin-analysis-table th:last-child,
+.skin-analysis-table td:last-child {
+    border-right: none;
+}
+.skin-analysis-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.skin-analysis-table tbody tr:nth-child(even) {
+    background-color: rgba(0, 0, 0, 0.02); /* Subtle zebra striping */
+}
+.dark .skin-analysis-table tbody tr:nth-child(even) {
+    background-color: rgba(255, 255, 255, 0.02);
+}
+
+/* Specific styling for checkmarks and crosses */
+.skin-analysis-table td {
+    font-size: 1.5rem; /* Make emojis larger */
+    line-height: 1; /* Adjust line height for emojis */
+}
+
+
+/* running-indicator (now removed from JS) */
+.running-indicator {
+    /* This rule is now effectively redundant as the element is commented out in JSX */
+    font-style: italic;
+    color: var(--primary-green); /* Use variable */
+    font-weight: 500;
+    font-size: 1.1rem;
+    animation: fadePulse 2s infinite ease-in-out;
+    display: none; /* Ensure it's hidden */
+}
+
+@keyframes fadePulse {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0.6; }
+}
+
+/* Search Box (Fixed at Bottom) */
+.search-box {
+    position: fixed;
+    bottom: 80px; /* Space for bottom-controls */
+    left: 0;
+    right: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    padding: 15px;
+    background: var(--bg-light); /* Use variable */
+    z-index: 100;
+    box-shadow: 0 -5px 20px var(--shadow-light); /* Stronger shadow at bottom */
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    padding-bottom: env(safe-area-inset-bottom, 15px); /* For iPhone X notch and similar */
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+.dark .search-box {
+    background: var(--bg-dark); /* Use variable */
+    box-shadow: 0 -5px 20px var(--shadow-dark); /* Dark mode shadow */
+}
+
+.search-box input {
+    flex: 1;
+    max-width: 400px;
+    padding: 12px 16px;
+    border: 2px solid var(--border-light); /* Use variable */
+    border-radius: 12px; /* Consistent rounding */
+    font-size: 1rem;
+    background-color: white; /* Always light background for input */
+    color: var(--text-color-light); /* Always dark text for input */
+    outline: none;
+    transition: all 0.3s ease;
+}
+.dark .search-box input {
+    background-color: var(--card-bg-dark); /* Dark mode input background */
+    color: var(--text-color-light); /* Dark mode input text color */
+    border-color: var(--border-dark); /* Dark mode input border */
+}
+.search-box input:focus {
+    border-color: var(--primary-green);
+    box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.3); /* Green focus ring */
+}
+
+/* Buttons & Controls (General Styles) */
+.mic, .search-btn, .upload-btn, .webcam-btn {
+    background-color: var(--primary-green); /* Use variable */
+    color: white;
+    padding: 12px 20px; /* Generous padding */
+    border: none;
+    border-radius: 12px;
+    font-size: 1rem;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+    white-space: nowrap; /* Prevent text wrapping on small buttons */
+}
+
+.mic:hover, .search-btn:hover, .upload-btn:hover, .webcam-btn:hover {
+    background-color: var(--primary-green-dark); /* Darker on hover */
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
+.search-btn.stop {
+    background-color: #F44336; /* Red for stop */
+}
+.search-btn.stop:hover {
+    background-color: #D32F2F; /* Darker red */
+}
+
+.mic.active {
+    animation: pulse-mic 1.5s infinite; /* Pulse animation for listening */
+    background-color: #FF5722; /* Orange-red for active mic */
+}
+
+@keyframes pulse-mic {
+    0% { box-shadow: 0 0 0 0 rgba(255, 87, 34, 0.7); }
+    70% { box-shadow: 0 0 0 10px rgba(255, 87, 34, 0); }
+    100% { box-shadow: 0 0 0 0 rgba(255, 87, 34, 0); }
+}
+
+/* Bottom Controls (Fixed at Bottom) */
+.bottom-controls {
+    position: fixed;
+    bottom: 0; /* Align to the very bottom */
+    left: 0;
+    right: 0;
+    display: flex;
+    justify-content: center;
+    gap: 15px;
+    padding: 15px;
+    background: var(--bg-light); /* Use variable */
+    z-index: 100;
+    box-shadow: 0 -5px 20px var(--shadow-light); /* Same as search-box */
+    border-top-left-radius: 20px;
+    border-top-right-radius: 20px;
+    padding-bottom: env(safe-area-inset-bottom, 15px); /* Safety padding for mobile notches */
+    transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+
+.dark .bottom-controls {
+    background: var(--bg-dark); /* Use variable */
+    box-shadow: 0 -5px 20px var(--shadow-dark); /* Dark mode shadow */
+}
+
+.bottom-controls button {
+    padding: 12px 16px;
+    border: none;
+    background-color: var(--secondary-blue); /* Use variable */
+    color: white;
+    border-radius: 12px;
+    font-size: 1rem;
+    cursor: pointer;
+    font-weight: 600;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+}
+
+.bottom-controls button:hover {
+    background-color: var(--secondary-blue-dark); /* Darker on hover */
+    transform: translateY(-2px);
+    box-shadow: 0 6px 15px rgba(0, 0, 0, 0.15);
+}
+
 
 /* ✅ Responsive Adjustments */
 @media (max-width: 992px) {
-  .title {
-    font-size: 1.8rem;
-  }
-  .main-wrapper {
-    padding: 20px;
-  }
+    .title {
+        font-size: 1.8rem;
+    }
+    .main-wrapper {
+        padding: 20px;
+        padding-top: 90px; /* Adjusted for smaller screens */
+    }
 }
 
 @media (max-width: 768px) {
-  .search-box {
-    flex-wrap: wrap;
-    padding: 10px;
-    gap: 8px;
-    bottom: 70px;
-  }
-  
-  .search-box input {
-    max-width: 100%;
-    order: 1;
-  }
-  
-  .mic, .search-btn, .upload-btn, .webcam-btn {
-    padding: 10px 12px;
-    font-size: 0.9rem;
-  }
-  
-  .problem-buttons button {
-    padding: 8px 12px;
-    font-size: 0.9rem;
-  }
-  
-  .title {
-    font-size: 1.5rem;
-  }
-  
-  .webcam-video {
-    max-height: 60vh;
-  }
-  
-  .webcam-controls {
-    flex-direction: column;
-    gap: 10px;
-  }
+    .main-wrapper {
+        padding-bottom: 200px; /* More space for fixed controls on smaller screens */
+        padding: 15px; /* Adjust main wrapper padding */
+        padding-top: 80px; /* Adjusted for smaller screens */
+        width: 95%; /* Make it slightly narrower */
+    }
+    .topbar {
+        padding: 15px 15px; /* Adjust topbar padding */
+        margin: 0 -15px 20px -15px; /* Removed negative top margin, adjusted side margins */
+    }
+    .title {
+        font-size: 1.5rem;
+    }
+    .search-box {
+        bottom: 70px; /* Adjust if bottom controls are also present */
+        flex-wrap: wrap; /* Allow buttons to wrap */
+        padding: 10px;
+    }
+    .search-box input {
+        width: 100%; /* Take full width */
+        order: -1; /* Place input at the top of the flex container */
+        margin-bottom: 10px;
+    }
+    .mic, .search-btn, .upload-btn, .webcam-btn, .search-btn.stop {
+        flex-basis: calc(50% - 5px); /* Two buttons per row */
+        max-width: calc(50% - 5px);
+        font-size: 0.9rem;
+        padding: 10px 12px;
+    }
+    .bottom-controls {
+        flex-direction: column; /* Stack export buttons */
+        gap: 10px;
+        bottom: 0; /* Ensures it's at the very bottom */
+        padding-bottom: env(safe-area-inset-bottom, 15px); /* Safety padding */
+    }
+    .bottom-controls button {
+        width: 100%;
+    }
+    .image-preview p, .running-indicator {
+        font-size: 1em; /* Adjust font size for mobile */
+    }
+    .skin-analysis-table th, .skin-analysis-table td {
+        font-size: 0.85rem; /* Smaller table text */
+        padding: 8px 10px;
+    }
+    .webcam-controls {
+        flex-direction: column; /* Stack webcam buttons */
+        gap: 10px;
+    }
 }
 
 @media (max-width: 480px) {
-  .main-wrapper {
-    width: 95%;
-    padding: 15px;
-    border-radius: 12px;
-  }
-  .title {
-    font-size: 1.3rem;
-  }
-  .bottom-controls {
-    flex-direction: column;
-    gap: 10px;
-  }
-  .bottom-controls button {
-    width: 100%;
-  }
+    .main-wrapper {
+        width: 95%;
+        padding: 10px; /* Even less padding for very small screens */
+        padding-top: 70px; /* Adjusted for very small screens */
+        border-radius: 12px;
+    }
+    .topbar {
+        padding: 10px 10px;
+        margin: 0 -10px 15px -10px; /* Removed negative top margin, adjusted side margins */
+    }
+    .title {
+        font-size: 1.3rem;
+    }
+    .problem-buttons button {
+        padding: 8px 10px;
+        font-size: 0.85rem;
+    }
+    .remedy-box h2 {
+        font-size: 1.5rem;
+    }
+    .remedy-content, .spinner-container p {
+        font-size: 1rem;
+    }
+    .search-box input {
+        padding: 10px 12px;
+    }
+    .mic, .search-btn, .upload-btn, .webcam-btn, .search-btn.stop {
+        flex-basis: 100%; /* One button per row */
+        max-width: 100%;
+    }
 }

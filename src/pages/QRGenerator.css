@@ -1,134 +1,193 @@
-/* 🌐 Background */
+/*
+|--------------------------------------------------------------------------
+| CSS Variables & Base Styles
+|--------------------------------------------------------------------------
+| A refined color palette and modern foundation using CSS variables.
+| This enhances consistency and makes future theming easier.
+*/
+:root {
+  --color-primary: #1e88e5; /* A vibrant, but not jarring, blue */
+  --color-primary-dark: #1565c0;
+  --color-accent: #fbc02d; /* A golden yellow for accents */
+  --color-bg-light: #f5f8fa; /* A very soft, light-blue background */
+  --color-text-dark: #37474f; /* A dark slate for strong contrast */
+  --color-text-subtle: #607d8b;
+  --color-card-bg: #ffffff;
+  --color-border: #e0e0e0; /* A very light, subtle border */
+  --shadow-base: 0 4px 12px rgba(0, 0, 0, 0.08);
+  --shadow-hover: 0 8px 25px rgba(0, 0, 0, 0.15);
+  --radius-medium: 12px;
+  --radius-large: 20px;
+  --transition-fast: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
+}
+
+body {
+  font-family: 'Inter', sans-serif;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/*
+|--------------------------------------------------------------------------
+| Main Layout & Card
+|--------------------------------------------------------------------------
+| Center the application and apply advanced styling to the main card container.
+*/
 .qr-bg {
   min-height: 100vh;
   width: 100%;
   display: flex;
   justify-content: center;
-  align-items: flex-start;
-  background: linear-gradient(135deg, #1a2a6c, #b21f1f, #fdbb2d, #00c6ff);
-  background-size: 400% 400%;
-  animation: gradientShift 12s ease infinite;
-  padding: 80px 20px 20px;
+  align-items: center;
+  padding: 40px 20px;
   box-sizing: border-box;
-  overflow-x: hidden;
+  /* A very soft, subtle background gradient for depth */
+  background: linear-gradient(135deg, var(--color-bg-light) 0%, #f9fbfd 100%);
 }
 
-@keyframes gradientShift {
-  0% { background-position: 0% 50%; }
-  50% { background-position: 100% 50%; }
-  100% { background-position: 0% 50%; }
-}
-
-/* 🌟 Card */
 .qr-card {
   width: 100%;
-  max-width: 850px;
-  background: rgba(255, 255, 255, 0.15);
-  border-radius: 20px;
-  padding: 35px;
-  box-shadow: 0 10px 35px rgba(0, 0, 0, 0.4);
-  backdrop-filter: blur(14px);
-  border: 1px solid rgba(255, 255, 255, 0.25);
-  color: #fff;
-  animation: fadeIn 1s ease;
-  margin: auto;
+  max-width: 750px;
+  background-color: var(--color-card-bg);
+  border-radius: var(--radius-large);
+  padding: 40px;
+  /* Multi-layer shadow for depth and elevation */
+  box-shadow: var(--shadow-base), inset 0 0 10px rgba(0, 0, 0, 0.02);
+  color: var(--color-text-dark);
+  animation: fadeIn 0.8s cubic-bezier(0.3, 0.8, 0.5, 1);
 }
 
-/* ✍️ Form */
+/*
+|--------------------------------------------------------------------------
+| Form & Inputs
+|--------------------------------------------------------------------------
+| Refined styles for form elements with a clean, professional look.
+*/
 .qr-grid {
   display: grid;
   grid-template-columns: 1fr 1fr;
-  gap: 25px 40px;
+  gap: 25px 35px;
 }
 
 .qr-grid label {
   display: block;
-  font-weight: bold;
-  margin-bottom: 6px;
-  color: #f1f1f1;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: var(--color-text-dark);
 }
 
 .qr-grid input,
 .qr-grid select,
 .qr-grid textarea {
   width: 100%;
-  padding: 12px;
-  border-radius: 10px;
-  border: none;
-  background: rgba(255, 255, 255, 0.25);
-  color: #fff;
+  padding: 14px;
+  border-radius: var(--radius-medium);
+  border: 1px solid var(--color-border);
+  background-color: #fcfcfc;
+  color: var(--color-text-dark);
   font-size: 1rem;
-  transition: 0.3s;
+  font-weight: 500;
+  transition: var(--transition-fast);
+}
+
+.qr-grid input::placeholder,
+.qr-grid textarea::placeholder {
+  color: var(--color-text-subtle);
 }
 
 .qr-grid input:focus,
 .qr-grid select:focus,
 .qr-grid textarea:focus {
-  border: 1px solid #00f7ff;
-  box-shadow: 0 0 12px #00f7ff;
+  border-color: var(--color-primary);
+  box-shadow: 0 0 0 3px rgba(30, 136, 229, 0.2), var(--shadow-base);
   outline: none;
 }
 
-/* 📌 QR Code */
+/*
+|--------------------------------------------------------------------------
+| QR Code Container & Buttons
+|--------------------------------------------------------------------------
+| Advanced styling for the QR code display and action buttons.
+*/
 .qr-code-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  margin-top: 20px;
-  padding: 15px;
-  border-radius: 16px;
-  background: rgba(255, 255, 255, 0.1);
-  box-shadow: 0 0 20px rgba(0, 255, 255, 0.6), inset 0 0 20px rgba(0, 255, 255, 0.2);
-  animation: glowPulse 2.5s infinite;
+  margin-top: 30px;
+  padding: 20px;
+  border-radius: var(--radius-medium);
+  background-color: #f9fbfd;
+  box-shadow: var(--shadow-base);
 }
 
-/* 🔘 Buttons */
 .btn-group {
   display: flex;
-  gap: 14px;
+  gap: 16px;
   justify-content: center;
-  margin-top: 20px;
+  margin-top: 30px;
   flex-wrap: wrap;
 }
 
 .qr-btn {
-  padding: 12px 22px;
+  padding: 14px 30px;
   border: none;
-  border-radius: 10px;
+  border-radius: var(--radius-medium);
   font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
-  background: linear-gradient(135deg, #00f7ff, #0077b6);
-  color: white;
-  transition: all 0.3s ease;
+  color: var(--color-text-light);
+  transition: var(--transition-fast);
+  box-shadow: var(--shadow-base);
 }
 
-.qr-btn:hover {
-  transform: translateY(-4px) scale(1.05);
-  box-shadow: 0 0 20px #00f7ff, 0 0 40px #0077b6;
+.qr-btn.primary {
+  background-color: var(--color-primary);
+}
+
+.qr-btn.primary:hover {
+  background-color: var(--color-primary-dark);
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
 }
 
 .qr-btn.secondary {
-  background: linear-gradient(135deg, #ff4e50, #f9d423);
+  background-color: var(--color-accent);
+  color: var(--color-text-dark);
 }
 
-/* 📱 Responsive */
+.qr-btn.secondary:hover {
+  background-color: #f5b700;
+  transform: translateY(-2px);
+  box-shadow: var(--shadow-hover);
+}
+
+/*
+|--------------------------------------------------------------------------
+| Animations & Responsiveness
+|--------------------------------------------------------------------------
+| Smoother animations and a mobile-first responsive layout.
+*/
 @media (max-width: 768px) {
   .qr-grid {
     grid-template-columns: 1fr;
+    gap: 20px;
   }
   .qr-card {
-    padding: 20px;
+    padding: 25px;
+  }
+  .qr-btn {
+    width: 100%;
+    padding: 12px;
   }
 }
 
-/* ⏳ Loader */
 .loading-container {
   display: flex;
   flex-direction: column;
   align-items: center;
   justify-content: center;
   height: 80vh;
-  color: white;
+  color: var(--color-text-dark);
 }
 
 .spinner {
@@ -136,9 +195,14 @@
   width: 50px;
   height: 50px;
   border-radius: 50%;
-  border-left-color: #4caf50;
+  border-left-color: var(--color-primary);
   animation: spin 1s linear infinite;
   margin-bottom: 10px;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(30px); }
+  to { opacity: 1; transform: translateY(0); }
 }
 
 @keyframes spin {

@@ -113,7 +113,7 @@ html, body {
   to { opacity: 1; transform: translateY(0); }
 }
 
-/* 📱 Mobile (up to 480px) */
+/* ðŸ“± Mobile (up to 480px) */
 @media (max-width: 480px) {
   .login-card {
     padding: 25px 20px;
@@ -135,7 +135,7 @@ html, body {
   }
 }
 
-/* 💻 Large screens (over 1200px) */
+/* ðŸ’» Large screens (over 1200px) */
 @media (min-width: 1200px) {
   .login-card {
     width: 420px;

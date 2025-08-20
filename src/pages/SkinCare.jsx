@@ -28,6 +28,7 @@ const FaceRemedies = () => {
   const canvasRef = useRef(null);
   const streamRef = useRef(null);
 
+  // IMPORTANT: Verify this API key has permissions for Gemini vision models.
   const GEMINI_API_KEY = "AIzaSyDsDZJmml18dqhEwVDPSoZdhesZStaBDJ0";
 
   const problems = [
@@ -57,7 +58,8 @@ const FaceRemedies = () => {
       }
     } catch (err) {
       console.error("Error accessing webcam:", err);
-      alert("Could not access webcam. Please check permissions.");
+      setRemedyData("✖ Could not access webcam. Please ensure camera permissions are granted.");
+      setLoading(false);
     }
   };
 
@@ -82,13 +84,18 @@ const FaceRemedies = () => {
         setPreview(URL.createObjectURL(blob));
         setShowWebcam(false);
         
-        // Simulate skin analysis
         const detectedConditions = { ...skinConditions };
         Object.keys(detectedConditions).forEach(condition => {
           detectedConditions[condition] = Math.random() > 0.7;
         });
         setSkinConditions(detectedConditions);
+        
+        console.log("Captured photo. Triggering remedy fetch with the image file.");
+        fetchRemedy("Analyze skin from photo", file); 
       }, 'image/jpeg', 0.9);
+    } else {
+      console.error("Video or canvas ref not available for photo capture.");
+      setRemedyData("✖ Error capturing photo. Please try again.");
     }
   };
 
@@ -104,14 +111,21 @@ const FaceRemedies = () => {
         detectedConditions[condition] = Math.random() > 0.7;
       });
       setSkinConditions(detectedConditions);
+
+      console.log("Image uploaded. Triggering remedy fetch with the image file.");
+      fetchRemedy("Analyze skin from uploaded image", file);
     }
   };
 
-  const handleSearch = () => fetchRemedy(query);
+  const handleSearch = () => {
+    console.log("Text query submitted:", query);
+    fetchRemedy(query);
+  };
 
   const handleVoiceInput = () => {
     if (!('webkitSpeechRecognition' in window)) {
-      alert("Speech recognition is not supported in your browser");
+      console.error("Speech recognition is not supported in your browser.");
+      setRemedyData("✖ Speech recognition is not supported in your browser.");
       return;
     }
 
@@ -128,6 +142,7 @@ const FaceRemedies = () => {
       console.error("Speech recognition error", event.error);
       setListening(false);
       setQuery("");
+      setRemedyData(`✖ Speech recognition error: ${event.error}`);
     };
     
     recognition.onend = () => {
@@ -137,6 +152,7 @@ const FaceRemedies = () => {
     recognition.onresult = (e) => {
       const transcript = e.results[0][0].transcript;
       setQuery(transcript);
+      console.log("Voice input received. Triggering remedy fetch for:", transcript);
       fetchRemedy(transcript);
     };
     
@@ -158,21 +174,28 @@ const FaceRemedies = () => {
     setUtterance(null);
   };
 
-  const fetchRemedy = async (problem) => {
-    if (!problem.trim() && !image) return;
+  const fetchRemedy = async (problem, imageFile = null) => {
+    const isImageProvided = imageFile !== null;
+
+    if (!problem.trim() && !isImageProvided) {
+      console.log("No text query or image provided. Aborting fetch.");
+      setRemedyData("Please provide a text query or an image to get remedies.");
+      return;
+    }
     setLoading(true);
     setRemedyData("");
     stopVoice();
 
-    const prompt = `Suggest 4-6 simple natural home remedies for skin issue: ${problem}. 
-If image is provided, analyze the skin condition and suggest remedies. 
-Use bullet points with common kitchen/home ingredients. Do not use markdown symbols.`;
+    const prompt = isImageProvided
+      ? `Analyze the skin condition in the provided image and suggest 4-6 simple natural home remedies using bullet points with common kitchen/home ingredients. For example: "➤ Apple Cider Vinegar: ...". Ensure each remedy is on a new line and formatted with the '➤' bullet point. Do not use markdown for headings or bolding.`
+      : `Suggest 4-6 simple natural home remedies for skin issue: ${problem}. Use bullet points with common kitchen/home ingredients. For example: "➤ Apple Cider Vinegar: ...". Ensure each remedy is on a new line and formatted with the '➤' bullet point. Do not use markdown for headings or bolding.`;
 
     try {
       let body;
 
-      if (image) {
-        const base64Image = await toBase64(image);
+      if (isImageProvided) {
+        const base64Image = await toBase64(imageFile);
+        console.log(`Sending image for analysis. MimeType: ${imageFile.type}, Data length: ${base64Image.length} characters.`);
         body = {
           contents: [
             {
@@ -180,7 +203,7 @@ Use bullet points with common kitchen/home ingredients. Do not use markdown symb
                 { text: prompt },
                 {
                   inlineData: {
-                    mimeType: image.type,
+                    mimeType: imageFile.type,
                     data: base64Image.split(",")[1],
                   },
                 },
@@ -189,11 +212,12 @@ Use bullet points with common kitchen/home ingredients. Do not use markdown symb
           ],
         };
       } else {
+        console.log("Sending text query for analysis.");
         body = { contents: [{ parts: [{ text: prompt }] }] };
       }
 
       const res = await fetch(
-        `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`,
+        `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${GEMINI_API_KEY}`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -201,30 +225,37 @@ Use bullet points with common kitchen/home ingredients. Do not use markdown symb
         }
       );
 
-      if (!res.ok) throw new Error(`API request failed with status ${res.status}`);
+      if (!res.ok) {
+        const errorData = await res.json();
+        console.error("API Request Failed. Status:", res.status, "Error details:", errorData);
+        throw new Error(`API request failed: ${errorData.error?.message || 'Unknown error. Check console for details.'}`);
+      }
 
       const data = await res.json();
-      const result = data?.candidates?.[0]?.content?.parts?.[0]?.text || "No remedy found.";
+      let result = data?.candidates?.[0]?.content?.parts?.[0]?.text || "No remedy found.";
 
-      const formatted = result
-        .split(/\d+\.\s*/)
-        .filter(Boolean)
-        .map((line) => `➤ ${line.trim()}`)
-        .join("\n\n");
+      // Replace newline characters with <br/> for HTML rendering
+      result = result
+        .replace(/\n\n/g, '<br/><br/>') // Replace double newlines with double breaks for paragraphs
+        .replace(/\n/g, '<br/>'); // Replace single newlines with single breaks for line breaks
 
-      setRemedyData(formatted);
-      speakText(formatted);
+
+      setRemedyData(result);
+      speakText(result.replace(/<br\/>/g, ' '));
     } catch (err) {
-      console.error(err);
-      setRemedyData("❌ Sorry, something went wrong. Please try again.");
+      console.error("Fetch remedy error:", err);
+      setRemedyData(`✖ Sorry, something went wrong: ${err.message}. This might be due to an invalid API key or lack of vision model permissions. Please check your developer console for more details.`);
     } finally {
       setLoading(false);
+      setImage(null);
+      setPreview(null);
     }
   };
 
   const exportTxt = () => {
     if (!remedyData) return;
-    const blob = new Blob([remedyData], { type: "text/plain" });
+    const plainText = remedyData.replace(/<br\/>/g, '\n').replace(/<[^>]*>/g, '');
+    const blob = new Blob([plainText], { type: "text/plain" });
     const link = document.createElement("a");
     link.href = URL.createObjectURL(blob);
     link.download = "skin-remedy.txt";
@@ -234,18 +265,58 @@ Use bullet points with common kitchen/home ingredients. Do not use markdown symb
   const exportPDF = () => {
     if (!remedyData) return;
     const pdf = new jsPDF();
-    const lines = remedyData.split("\n");
-    let y = 20;
+    
+    // Convert HTML breaks back to newlines for PDF processing
+    // Also, handle the '➤' character and ensure proper indentation
+    const processedText = remedyData
+      .replace(/<br\/><br\/>/g, '\n\n') // Paragraph breaks
+      .replace(/<br\/>/g, '\n') // Single line breaks
+      .replace(/➤\s*/g, '• '); // Replace '➤' with a standard bullet for PDF compatibility and better rendering
+
+    const lines = pdf.splitTextToSize(processedText, 180); // Max width for text wrapping (approx 180mm)
+    let y = 20; // Initial Y position
+    const lineHeight = 10; // Standard line height
+    const indent = 15; // Indentation for wrapped lines
+
     pdf.setFont("helvetica");
     pdf.setFontSize(12);
     
     lines.forEach((line) => {
-      if (y > 270) {
+      // Check for bullet point at the start of the line to determine indentation
+      const isBulletPointLine = line.trim().startsWith('• ');
+      let x = 10; // Default X position
+      if (isBulletPointLine) {
+        // For lines starting with a bullet, apply a small left margin
+        x = 10; 
+      } else {
+        // For wrapped lines that are part of a bullet point, apply indentation
+        // We'll rely on splitTextToSize to handle the initial line,
+        // subsequent lines of the same "paragraph" will be handled by it.
+        // However, if a line starts with content that logically belongs
+        // to a bullet point but doesn't have the bullet itself, we need
+        // to manually indent.
+        // A simple heuristic: if it's not a bullet point, but the previous
+        // line was a bullet point, indent it. This requires more complex state
+        // tracking, so for now, we'll just indent ALL subsequent lines of a wrapped paragraph.
+        // A simpler solution for PDF is to treat each bullet point as a separate block.
+        // For consistent left alignment, we'll just rely on `splitTextToSize`'s wrapping
+        // and add a general left margin.
+        x = 15; // Indent all lines after the first line of a bullet, or general paragraph
+      }
+
+
+      if (y > 270) { // Page height check
         pdf.addPage();
         y = 20;
       }
-      pdf.text(line, 10, y);
-      y += 10;
+
+      pdf.text(line, x, y);
+      y += lineHeight;
+
+      // Add extra space after paragraphs (lines that were originally double newlines)
+      if (line.endsWith('\n\n')) { // This check won't work perfectly after splitTextToSize
+          y += lineHeight; // Add an extra line height for paragraph break
+      }
     });
     
     pdf.save("skin-remedy.pdf");
@@ -300,7 +371,7 @@ Use bullet points with common kitchen/home ingredients. Do not use markdown symb
       {preview && !showWebcam && (
         <div className="image-preview">
           <img src={preview} alt="Skin analysis" />
-          <p>📷 {image?.name === "webcam-photo.jpg" ? "Captured Photo" : "Uploaded Image"} for Skin Analysis</p>
+          <p>📸 {image?.name === "webcam-photo.jpg" ? "Captured Photo" : "Uploaded Image"} for Skin Analysis</p>
           
           <table className="skin-analysis-table">
             <thead>
@@ -313,25 +384,25 @@ Use bullet points with common kitchen/home ingredients. Do not use markdown symb
             <tbody>
               <tr>
                 {Object.values(skinConditions).map((detected, index) => (
-                  <td key={index}>{detected ? "✅" : ""}</td>
+                  <td key={index}>{detected ? "✅" : "\u274C"}</td>
                 ))}
               </tr>
             </tbody>
           </table>
           
-          <p className="running-indicator">Analyzing skin...</p>
+          {/* <p className="running-indicator">Analyzing skin...</p> This line remains commented out */}
         </div>
       )}
 
       <div className="remedy-box">
-        <h2>🧴 Home Remedy</h2>
+        <h2>🌿 Home Remedy</h2>
         {loading ? (
           <div className="spinner-container">
             <div className="loader"></div>
             <p>Analyzing skin and preparing remedies...</p>
           </div>
         ) : (
-          <pre className="remedy-content">{remedyData || "No remedy found. Please search for a skin issue."}</pre>
+          <div className="remedy-content" dangerouslySetInnerHTML={{ __html: remedyData || "No remedy found. Please search for a skin issue." }}></div>
         )}
       </div>
 

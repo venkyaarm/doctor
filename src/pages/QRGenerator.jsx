@@ -28,9 +28,11 @@ export default function QRGenerator() {
 
   const [loading, setLoading] = useState(true);
   const [cloudinaryUrl, setCloudinaryUrl] = useState("");
+  const [isEditing, setIsEditing] = useState(false);
+  const [message, setMessage] = useState(""); // top confirmation message
   const qrRef = useRef();
 
-  // 🔹 Fetch saved data from Firestore
+  // Fetch saved data from Firestore
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       if (user) {
@@ -55,12 +57,10 @@ export default function QRGenerator() {
     return unsubscribe;
   }, []);
 
-  // 🔹 Handle input change
   const handleChange = (e) => {
     setFormData((prev) => ({ ...prev, [e.target.name]: e.target.value }));
   };
 
-  // 🔹 Handle photo upload (local preview only)
   const handlePhotoUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
@@ -72,7 +72,6 @@ export default function QRGenerator() {
     }));
   };
 
-  // 🔹 Text wrapping helper
   const wrapText = (ctx, text, x, y, maxWidth, lineHeight) => {
     const words = text.split(" ");
     let line = "";
@@ -94,7 +93,7 @@ export default function QRGenerator() {
     return y + lineHeight;
   };
 
-  // 🔹 Generate + Upload profile card to Cloudinary
+  // Generate + Upload new profile card to Cloudinary
   const generateAndUploadImage = async () => {
     if (!formData.photo) throw new Error("No photo uploaded");
 
@@ -171,7 +170,7 @@ export default function QRGenerator() {
     });
   };
 
-  // 🔹 Save details to Firestore
+  // Save details (new image)
   const saveDetails = async () => {
     const user = auth.currentUser;
     if (!user) return alert("Please log in first.");
@@ -187,20 +186,19 @@ export default function QRGenerator() {
         cloudinaryUrl: imageUrl,
       });
 
-      alert("✅ Details + Image saved successfully!");
+      setMessage("✅ Details are saved!");
+      setIsEditing(false); // exit edit mode
     } catch (err) {
       console.error("Error saving data:", err);
       alert("❌ Failed to save data.");
     }
   };
 
-  // 🔹 QR code value
   const qrValue = useMemo(
     () => cloudinaryUrl || "Upload details first!",
     [cloudinaryUrl]
   );
 
-  // 🔹 Download QR PNG
   const downloadPNG = () => {
     try {
       const canvas = qrRef.current.querySelector("canvas");
@@ -215,7 +213,6 @@ export default function QRGenerator() {
     }
   };
 
-  // 🔹 Download QR PDF
   const downloadPDF = () => {
     try {
       const canvas = qrRef.current.querySelector("canvas");
@@ -245,6 +242,19 @@ export default function QRGenerator() {
       <div className="qr-wrapper">
         <div className="qr-card">
           <h2 className="qr-title">✨ Generate Your Health QR Code ✨</h2>
+          
+          {/* Show top message if saved */}
+          {message && <p className="top-message">{message}</p>}
+
+          {/* Edit button */}
+          {!isEditing && (
+            <button
+              className="edit-btn"
+              onClick={() => setIsEditing(true)}
+            >
+              ✏️ Edit Details
+            </button>
+          )}
 
           <form className="qr-grid">
             {/* Left Column */}
@@ -265,38 +275,48 @@ export default function QRGenerator() {
               ].map(([label, name, placeholder, type]) => (
                 <div key={name}>
                   <label>{label}</label>
-                  {type === "textarea" ? (
-                    <textarea
-                      name={name}
-                      value={formData[name]}
-                      onChange={handleChange}
-                      placeholder={placeholder}
-                    />
-                  ) : type === "select" ? (
-                    <select
-                      name={name}
-                      value={formData[name]}
-                      onChange={handleChange}
-                    >
-                      <option value="">Select</option>
-                      <option>Male</option>
-                      <option>Female</option>
-                      <option>Other</option>
-                    </select>
-                  ) : (
-                    <input
-                      type={type || "text"}
-                      name={name}
-                      value={formData[name]}
-                      onChange={handleChange}
-                      placeholder={placeholder}
-                    />
+                  {(isEditing || !cloudinaryUrl) && (
+                    type === "textarea" ? (
+                      <textarea
+                        name={name}
+                        value={formData[name]}
+                        onChange={handleChange}
+                        placeholder={placeholder}
+                      />
+                    ) : type === "select" ? (
+                      <select
+                        name={name}
+                        value={formData[name]}
+                        onChange={handleChange}
+                      >
+                        <option value="">Select</option>
+                        <option>Male</option>
+                        <option>Female</option>
+                        <option>Other</option>
+                      </select>
+                    ) : (
+                      <input
+                        type={type || "text"}
+                        name={name}
+                        value={formData[name]}
+                        onChange={handleChange}
+                        placeholder={placeholder}
+                      />
+                    )
                   )}
                 </div>
               ))}
 
-              <label>Upload Passport Photo</label>
-              <input type="file" accept="image/*" onChange={handlePhotoUpload} />
+              {(isEditing || !cloudinaryUrl) && (
+                <>
+                  <label>Upload Passport Photo</label>
+                  <input
+                    type="file"
+                    accept="image/*"
+                    onChange={handlePhotoUpload}
+                  />
+                </>
+              )}
             </div>
 
             {/* Right Column */}
@@ -310,27 +330,29 @@ export default function QRGenerator() {
                 />
               </div>
 
-              <div className="btn-group">
-                <button type="button" onClick={saveDetails} className="qr-btn">
-                  💾 Save
-                </button>
-                <button
-                  type="button"
-                  onClick={downloadPNG}
-                  className="qr-btn secondary"
-                >
-                  📤 PNG
-                </button>
-                <button
-                  type="button"
-                  onClick={downloadPDF}
-                  className="qr-btn secondary"
-                >
-                  📄 PDF
-                </button>
-              </div>
+              {(isEditing || !cloudinaryUrl) && (
+                <div className="btn-group">
+                  <button type="button" onClick={saveDetails} className="qr-btn">
+                    💾 Save
+                  </button>
+                  <button
+                    type="button"
+                    onClick={downloadPNG}
+                    className="qr-btn secondary"
+                  >
+                    🖼 PNG
+                  </button>
+                  <button
+                    type="button"
+                    onClick={downloadPDF}
+                    className="qr-btn secondary"
+                  >
+                    📄 PDF
+                  </button>
+                </div>
+              )}
 
-              {cloudinaryUrl && (
+              {cloudinaryUrl && !isEditing && (
                 <p className="qr-link">
                   ✅ Uploaded to Cloudinary:{" "}
                   <a

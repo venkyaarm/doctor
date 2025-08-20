@@ -12,7 +12,10 @@ import {
   Clipboard, // Copy to clipboard icon
   FileText, // Export TXT icon
   Download, // General download icon for PDF
-  XCircle // For close button on status messages
+  XCircle, // For close button on status messages
+  User, // ADDED: User icon for chat messages
+  Bot, // ADDED: Bot icon for chat messages
+  X // ADDED: Icon for clear input button
 } from 'lucide-react';
 
 // For PDF generation, jsPDF needs to be imported.
@@ -30,6 +33,7 @@ export default function AskDoctor() {
 
   const chatBoxRef = useRef(null); // Ref for scrolling to bottom
   const recognitionRef = useRef(null); // Ref for SpeechRecognition instance
+  const inputRef = useRef(null); // ADDED: Ref for the input field
 
   // Your Gemini API key (IMPORTANT: Never hardcode in production environment)
   const API_KEY = "AIzaSyDsDZJmml18dqhEwVDPSoZdhesZStaBDJ0";
@@ -316,6 +320,14 @@ export default function AskDoctor() {
     setTimeout(() => setStatusMessage(""), 3000); // Clear message after 3 seconds
   };
 
+  // ADDED: Function to clear the input field
+  const handleClearInput = () => {
+    setQuestion("");
+    if (inputRef.current) {
+      inputRef.current.focus(); // Keep focus on input after clearing
+    }
+  };
+
   // Export chat history to TXT
   const exportTxt = () => {
     if (history.length === 0) {
@@ -328,7 +340,7 @@ export default function AskDoctor() {
             return `Q: ${h.text}`;
         } else {
             // Use the new htmlToStructuredPlainText for bot's answer
-            const plainTextAnswer = h.html ? htmlToStructuredPlainText(h.html) : String(h.text || ''); // FIX: Ensure text is string too
+            const plainTextAnswer = h.html ? htmlToStructuredPlainText(h.html) : String(h.text || ''); // FIX: Add || '' for safety
             return `A: ${plainTextAnswer}`;
         }
     }).filter(line => line.trim() !== "").join("\n\n"); // Filter empty lines
@@ -406,7 +418,7 @@ export default function AskDoctor() {
             return `Q: ${h.text}`;
         } else {
             // Use the new htmlToStructuredPlainText for bot's answer
-            const plainTextAnswer = h.html ? htmlToStructuredPlainText(h.html) : String(h.text || ''); // FIX: Ensure text is string too
+            const plainTextAnswer = h.html ? htmlToStructuredPlainText(h.html) : String(h.text || ''); // FIX: Add || '' for safety
             return `A: ${plainTextAnswer}`;
         }
     }).filter(line => line.trim() !== "").join("\n\n");
@@ -529,6 +541,30 @@ export default function AskDoctor() {
           flex-direction: column;
           max-width: 90%; /* Allow more width */
         }
+        /* ADDED: Styles for chat entry content and icons */
+        .chat-entry-content {
+            display: flex;
+            align-items: flex-start; /* Align icon and text at the top */
+            gap: 10px; /* Space between icon and bubble */
+            width: 100%; /* Ensure content takes full width of chat-entry */
+        }
+        .chat-entry.user .chat-entry-content {
+            flex-direction: row-reverse; /* Reverse order for user messages (icon on right) */
+            align-self: flex-end; /* Push user content to the right */
+        }
+        .chat-entry.bot .chat-entry-content {
+            flex-direction: row; /* Normal order for bot messages (icon on left) */
+            align-self: flex-start; /* Push bot content to the left */
+        }
+        .chat-icon {
+            flex-shrink: 0; /* Prevent icon from shrinking */
+            margin-top: 5px; /* Align icon better with text */
+            color: var(--primary-blue); /* Default icon color */
+        }
+        .chat-entry.user .chat-icon {
+            color: var(--primary-blue-dark); /* Slightly different color for user icon */
+        }
+
 
         .chat-question, .chat-answer {
           padding: 12px 18px; /* More padding */
@@ -536,6 +572,7 @@ export default function AskDoctor() {
           line-height: 1.6;
           word-wrap: break-word; /* Ensure long words wrap */
           box-shadow: 0 2px 5px rgba(0,0,0,0.08); /* Subtle shadow for bubbles */
+          flex-grow: 1; /* Allow bubble to take available space */
         }
 
         .chat-question {
@@ -605,6 +642,7 @@ export default function AskDoctor() {
           margin-top: 20px; /* More space */
           width: 100%;
           gap: 10px; /* Space between input and buttons */
+          position: relative; /* ADDED: For positioning clear input button */
         }
 
         .input-box input {
@@ -617,12 +655,41 @@ export default function AskDoctor() {
           color: var(--text-dark);
           background-color: #ffffff;
           transition: border-color 0.3s ease, box-shadow 0.3s ease;
+          padding-right: 40px; /* ADDED: Space for clear button */
         }
 
         .input-box input:focus {
           border-color: var(--primary-blue);
           box-shadow: 0 0 0 3px rgba(0, 119, 182, 0.2);
         }
+
+        /* ADDED: Clear input button styles */
+        .clear-input-button {
+            position: absolute;
+            right: 180px; /* Adjust based on your button widths and gaps */
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #999;
+            cursor: pointer;
+            padding: 5px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            transition: color 0.2s ease, background-color 0.2s ease;
+            z-index: 10; /* Ensure it's above the input */
+        }
+        .clear-input-button:hover {
+            color: #333;
+            background-color: rgba(0,0,0,0.05);
+        }
+        .clear-input-button:disabled {
+            cursor: not-allowed;
+            opacity: 0.5;
+        }
+
 
         .input-box button {
           background: var(--primary-blue);
@@ -797,6 +864,11 @@ export default function AskDoctor() {
             width: 100%;
             font-size: 0.9em;
           }
+           /* ADDED: Responsive adjustments for clear input button */
+          .clear-input-button {
+              right: 10px; /* Adjust for mobile layout */
+              top: 15px; /* Adjust for mobile layout */
+          }
         }
 
         @media (max-width: 480px) {
@@ -836,23 +908,31 @@ export default function AskDoctor() {
           {history.map((item, index) => (
             <div key={index} className={`chat-entry ${item.sender}`}>
               {item.sender === "user" ? (
-                <div className="chat-question">You: {item.text}</div>
+                // ADDED: User icon and content wrapper
+                <div className="chat-entry-content">
+                  <User size={20} className="chat-icon user-icon" />
+                  <div className="chat-question">You: {item.text}</div>
+                </div>
               ) : (
-                <div className="chat-answer">
-                  {/* Render HTML content if available, otherwise plain text */}
-                  {item.html ? (
-                    <div dangerouslySetInnerHTML={{ __html: item.html }} />
-                  ) : (
-                    item.text === "..." ? (
-                      <div className="loading-dots">
-                        <div className="loading-dot"></div>
-                        <div className="loading-dot"></div>
-                        <div className="loading-dot"></div>
-                      </div>
+                // ADDED: Bot icon and content wrapper
+                <div className="chat-entry-content">
+                  <Bot size={20} className="chat-icon bot-icon" />
+                  <div className="chat-answer">
+                    {/* Render HTML content if available, otherwise plain text */}
+                    {item.html ? (
+                      <div dangerouslySetInnerHTML={{ __html: item.html }} />
                     ) : (
-                      item.text
-                    )
-                  )}
+                      item.text === "..." ? (
+                        <div className="loading-dots">
+                          <div className="loading-dot"></div>
+                          <div className="loading-dot"></div>
+                          <div className="loading-dot"></div>
+                        </div>
+                      ) : (
+                        item.text
+                      )
+                    )}
+                  </div>
                 </div>
               )}
             </div>
@@ -860,11 +940,15 @@ export default function AskDoctor() {
           {/* Bot typing indicator, shown only if loading and not already showing a message placeholder */}
           {loading && isTyping && history[history.length - 1]?.text !== "..." && (
             <div className="chat-entry bot">
-              <div className="chat-answer">
-                <div className="loading-dots">
-                  <div className="loading-dot"></div>
-                  <div className="loading-dot"></div>
-                  <div className="loading-dot"></div>
+              {/* ADDED: Bot icon for typing indicator */}
+              <div className="chat-entry-content">
+                <Bot size={20} className="chat-icon bot-icon" />
+                <div className="chat-answer">
+                  <div className="loading-dots">
+                    <div className="loading-dot"></div>
+                    <div className="loading-dot"></div>
+                    <div className="loading-dot"></div>
+                  </div>
                 </div>
               </div>
             </div>
@@ -884,7 +968,14 @@ export default function AskDoctor() {
               }
             }}
             disabled={loading || isListening}
+            ref={inputRef /* Corrected: Inline comment syntax for ref prop */}
           />
+          {/* ADDED: Clear input button */}
+          {question && !isListening && ( // Only show if there's text and not listening
+            <button className="clear-input-button" onClick={handleClearInput} disabled={loading}>
+              <X size={16} />
+            </button>
+          )}
           <button onClick={() => handleAsk(question)} disabled={loading || !question.trim() || isListening}>
             <Send size={20} /> Ask
           </button>
