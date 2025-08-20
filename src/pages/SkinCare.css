@@ -647,35 +647,99 @@ body, html {
     }
 }
 
+/* 📱 Pure Mobile UI (max 480px) */ 
 @media (max-width: 480px) {
-    .main-wrapper {
-        width: 95%;
-        padding: 10px; /* Even less padding for very small screens */
-        padding-top: 70px; /* Adjusted for very small screens */
-        border-radius: 12px;
-    }
-    .topbar {
-        padding: 10px 10px;
-        margin: 0 -10px 15px -10px; /* Removed negative top margin, adjusted side margins */
-    }
-    .title {
-        font-size: 1.3rem;
-    }
-    .problem-buttons button {
-        padding: 8px 10px;
-        font-size: 0.85rem;
-    }
-    .remedy-box h2 {
-        font-size: 1.5rem;
-    }
-    .remedy-content, .spinner-container p {
-        font-size: 1rem;
-    }
-    .search-box input {
-        padding: 10px 12px;
-    }
-    .mic, .search-btn, .upload-btn, .webcam-btn, .search-btn.stop {
-        flex-basis: 100%; /* One button per row */
-        max-width: 100%;
-    }
+  .main-wrapper {
+    width: 95%;
+    height: 150vh;             /* full screen height */
+    padding: 12px;
+    padding-top: 65px;
+    border-radius: 0;
+    box-shadow: none;
+    overflow-y: auto;          /* ✅ enable vertical scroll */
+  }
+
+  .topbar {
+    padding: 10px;
+    margin: 0;
+    text-align: center;
+    position: sticky;          /* ✅ always visible at top */
+    top: 0;
+    background: #fff;
+    z-index: 100;
+  }
+
+  .title {
+    font-size: 1.2rem;
+    text-align: center;
+  }
+
+  /* 🔹 Remedies Chips */
+  .problem-buttons {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin: 10px 0 20px 0;   /* ✅ add extra space below */
+  }
+
+  .problem-buttons button {
+    flex: 1 1 auto;
+    padding: 6px 12px;
+    font-size: 0.85rem;
+    border-radius: 20px; /* ✅ rounded pill shape */
+    min-width: 42%;
+    text-align: center;
+  }
+
+  /* 🔹 Remedy Title */
+  .remedy-box h2 {
+    font-size: 1.2rem;
+    text-align: center;
+    margin-bottom: 12px;    /* ✅ space under title */
+  }
+
+  /* 🔹 Input + Buttons */
+  .search-box {
+    width: 90%;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;             /* ✅ more space between buttons */
+    margin-top: 15px;
+    margin-bottom: 45px;   /* ✅ push down before export buttons */
+  }
+
+  .search-box input {
+    width: 90%;
+    padding: 10px 12px;
+    font-size: 0.9rem;
+    border-radius: 8px;
+  }
+
+  /* 🔹 Action Buttons */
+  .mic,
+  .search-btn,
+  .upload-btn,
+  .webcam-btn,
+  .search-btn.stop {
+    width: 100%;
+    padding: 10px;         
+    font-size: 0.9rem;
+    border-radius: 8px;
+  }
+
+  /* 🔹 Export buttons at bottom */
+  .bottom-controls {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;             /* ✅ more spacing between them */
+    margin: 25px 0 20px 0; /* ✅ extra space above & below */
+  }
+
+  .bottom-controls button {
+    width: 100%;
+    padding: 10px;
+    font-size: 0.9rem;
+    border-radius: 8px;
+  }
 }

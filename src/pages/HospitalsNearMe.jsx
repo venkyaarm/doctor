@@ -658,24 +658,51 @@ const searchLocation = async (query) => {
             }
         }
 
-        @media (max-width: 480px) {
-            .hospitals-container {
-                padding: 10px;
-                gap: 10px;
-            }
-            .map-card {
-  min-height: 600px; /* Increased minimum height for the map */
+        /* --- Mobile View (≤480px) --- */
+@media (max-width: 480px) {
+
+  .hospitals-container {
+    display: flex;
+    flex-direction: column; /* Stack vertically for better readability */
+    padding: 8px;
+    gap: 8px;
+    width: 100%;
+  }
+
+  .map-card {
+    width: 75%;
+    min-height: 350px; /* Optimized height for small screens */
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .leaflet-container {
+    width: 100%;
+    height: 100%; /* Full height inside map-card */
+    min-height: 300px; /* Prevent too small map */
+  }
+
+  .hospital-preview-card {
+    width: 100%; /* Full width on mobile */
+    min-height: 100px;
+    max-height: 140px;
+    padding: 12px;
+    border-radius: 10px;
+    box-shadow: 0 2px 6px rgba(0,0,0,0.1);
+    font-size: 14px; /* Slightly smaller text */
+  }
+
+  /* Optional: make text & buttons adapt */
+  .hospital-preview-card h3 {
+    font-size: 16px;
+  }
+
+  .hospital-preview-card button {
+    font-size: 13px;
+    padding: 6px 12px;
+  }
 }
-.leaflet-container {
-  flex-grow: 1; /* Ensure map takes remaining height */
-  height: 100%; /* Ensure leaflet container takes full height of its parent */
-}
-            .hospital-preview-card {
-                width: 200px; /* Even smaller cards on very small screens */
-                min-height: 120px; /* Adjusted min-height for very small screens */
-                max-height: 140px; /* Adjusted max-height for very small screens */
-            }
-        }
+
       `}</style>
 
       {/* Status Message Display */}
