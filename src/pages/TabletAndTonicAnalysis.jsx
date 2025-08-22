@@ -30,7 +30,7 @@ export default function TabletAndTonicAnalysis() {
   const chatBoxRef = useRef(null);
   const recognitionRef = useRef(null);
 
-  const API_KEY = "AIzaSyDsDZJmml18dqhEwVDPSoZdhesZStaBDJ0";
+  const API_KEY = "AIzaSyDykTtPcnGg-FRH1eXrzidHjH-smrCXehs";
   const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${API_KEY}`;
 
   useEffect(() => {
