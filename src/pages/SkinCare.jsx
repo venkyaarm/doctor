@@ -29,7 +29,7 @@ const FaceRemedies = () => {
   const streamRef = useRef(null);
 
   // IMPORTANT: Verify this API key has permissions for Gemini vision models.
-  const GEMINI_API_KEY = "AIzaSyDsDZJmml18dqhEwVDPSoZdhesZStaBDJ0";
+  const GEMINI_API_KEY = "AIzaSyDykTtPcnGg-FRH1eXrzidHjH-smrCXehs";
 
   const problems = [
     "Pimples", "Acne", "Dark Circles", "Black Skin", "Dry Skin",
