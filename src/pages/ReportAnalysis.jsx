@@ -47,7 +47,7 @@ export default function HealthReportAnalysis() {
 
 
   // Your Gemini API key (IMPORTANT: Keep private in production. For hackathon demo, direct embed is common.)
-  const GEMINI_API_KEY = "AIzaSyDsDZJmml18dqhEwVDPSoZdhesZStaBDJ0";
+  const GEMINI_API_KEY = "AIzaSyDykTtPcnGg-FRH1eXrzidHjH-smrCXehs";
 
   // Effect to manage camera stream for image capture or QR scanning
   useEffect(() => {
