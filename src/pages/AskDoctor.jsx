@@ -35,7 +35,7 @@ export default function AskDoctor() {
   const inputRef = useRef(null); // ADDED: Ref for the input field
 
   // Your Gemini API key (IMPORTANT: Never hardcode in production environment)
-  const API_KEY = "AIzaSyDsDZJmml18dqhEwVDPSoZdhesZStaBDJ0";
+  const API_KEY = "AIzaSyDykTtPcnGg-FRH1eXrzidHjH-smrCXehs";
   const GEMINI_API_URL = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${API_KEY}`;
 
   // Scroll to bottom of chat box
