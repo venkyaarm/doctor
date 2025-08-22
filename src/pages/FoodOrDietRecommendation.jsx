@@ -21,7 +21,7 @@ export default function FoodOrDietRecommendation() {
   const [activeTab, setActiveTab] = useState("recommendations");
   const [nutritionSummary, setNutritionSummary] = useState(null);
 
-  const GEMINI_API_KEY = "AIzaSyDsDZJmml18dqhEwVDPSoZdhesZStaBDJ0";
+  const GEMINI_API_KEY = "AIzaSyDykTtPcnGg-FRH1eXrzidHjH-smrCXehs";
 
   useEffect(() => {
     const savedFavorites = localStorage.getItem("dietFavorites");
