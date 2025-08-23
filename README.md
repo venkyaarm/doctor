@@ -3,6 +3,7 @@
 A modern and user-friendly Hospital Management Web Application built with React (Vite) and Firebase.
 This app provides patients and users with various healthcare features such as doctor consultation, QR-based health records, diet recommendations, skin care analysis, hospital search, and emergency support.
 
+
 📂 Project Structure
 hospital-app/
 │── public/
